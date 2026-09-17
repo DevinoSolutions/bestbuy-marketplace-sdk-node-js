@@ -1,0 +1,420 @@
+{
+  "attributes": [
+    {
+      "code": "BBYCat",
+      "default_value": null,
+      "description": "Category code of the product",
+      "description_translations": [
+        {
+          "locale": "en",
+          "value": "Category code of the product"
+        }
+      ],
+      "example": null,
+      "hierarchy_code": "",
+      "label": "Category Code",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "Category Code"
+        }
+      ],
+      "required": true,
+      "requirement_level": "REQUIRED",
+      "roles": [
+        {
+          "parameters": [],
+          "type": "CATEGORY"
+        }
+      ],
+      "type": "TEXT",
+      "type_parameter": null,
+      "type_parameters": null,
+      "values": null,
+      "values_list": null,
+      "variant": false
+    },
+    {
+      "code": "shop_sku",
+      "default_value": null,
+      "description": "Unique product identifier, 30 characters limit.",
+      "description_translations": [
+        {
+          "locale": "en",
+          "value": "Unique product identifier, 30 characters limit."
+        }
+      ],
+      "example": null,
+      "hierarchy_code": "",
+      "label": "Shop sku",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "Shop sku"
+        }
+      ],
+      "required": true,
+      "requirement_level": "REQUIRED",
+      "roles": [
+        {
+          "parameters": [],
+          "type": "SHOP_SKU"
+        }
+      ],
+      "type": "TEXT",
+      "type_parameter": null,
+      "type_parameters": null,
+      "validations": "MAX_LENGTH|30",
+      "values": null,
+      "values_list": null,
+      "variant": false
+    },
+    {
+      "code": "_Title_BB_Category_Root_EN",
+      "default_value": null,
+      "description": "The main title describing the product.",
+      "description_translations": [
+        {
+          "locale": "en",
+          "value": "The main title describing the product."
+        }
+      ],
+      "example": "This is a text",
+      "hierarchy_code": "",
+      "label": "Title BB (EN)",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "Title BB (EN)"
+        }
+      ],
+      "required": true,
+      "requirement_level": "REQUIRED",
+      "roles": [
+        {
+          "parameters": [],
+          "type": "TITLE"
+        }
+      ],
+      "type": "LONG_TEXT",
+      "type_parameter": null,
+      "type_parameters": null,
+      "validations": "MAX_LENGTH|180,SCRIPT|\"result.valid = true; // assume valid by default\n\n// Check for literal \"\"&nbsp;\"\" text\nif (value.indexOf(\"\"&nbsp;\"\") !== -1) {\n    result.valid = false;\n    result.message = \"\"Title cannot contain &nbsp; characters\"\";\n}\n\n// Check for actual non-breaking space characters (Unicode U+00A0)\nif (/\\u00A0/.test(value)) {\n    result.valid = false;\n    result.message = \"\"Title cannot contain non-breaking spaces\"\";\n}\n\"|false,SCRIPT|\"var words = value.split(/\\s+/);\n\nresult.valid = true; // assume valid by default\n\nfor (var i = 0; i < words.length; i++) {\n    if (words[i].length > 28) {\n        result.valid = false;\n        result.message = \"\"Title cannot contain words longer than 28 characters\"\";\n    }\n}\"|false",
+      "values": null,
+      "values_list": null,
+      "variant": false
+    },
+    {
+      "code": "_Short_Description_BB_Category_Root_EN",
+      "default_value": null,
+      "description": "A single paragraph that describes the product in 400 characters or fewer. Introduce the product and \t\t\t\t\tcall out a couple of key features and their benefits.",
+      "description_translations": [
+        {
+          "locale": "en",
+          "value": "A single paragraph that describes the product in 400 characters or fewer. Introduce the product and \t\t\t\t\tcall out a couple of key features and their benefits."
+        }
+      ],
+      "example": null,
+      "hierarchy_code": "",
+      "label": "Short Description BB (EN)",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "Short Description BB (EN)"
+        }
+      ],
+      "required": true,
+      "requirement_level": "REQUIRED",
+      "roles": [
+        {
+          "parameters": [],
+          "type": "DESCRIPTION"
+        }
+      ],
+      "type": "LONG_TEXT",
+      "type_parameter": null,
+      "type_parameters": null,
+      "validations": "MAX_LENGTH|480",
+      "values": null,
+      "values_list": null,
+      "variant": false
+    },
+    {
+      "code": "_Brand_Name_Category_Root_EN",
+      "default_value": null,
+      "description": "Up to 20 characters. Do not use the less-than or greater-than characters.",
+      "description_translations": [
+        {
+          "locale": "en",
+          "value": "Up to 20 characters. Do not use the less-than or greater-than characters."
+        }
+      ],
+      "example": "This is a text",
+      "hierarchy_code": "",
+      "label": "Brand Name",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "Brand Name"
+        }
+      ],
+      "required": true,
+      "requirement_level": "REQUIRED",
+      "roles": [
+        {
+          "parameters": [],
+          "type": "BRAND"
+        }
+      ],
+      "type": "TEXT",
+      "type_parameter": null,
+      "type_parameters": null,
+      "validations": "MAX_LENGTH|20",
+      "values": null,
+      "values_list": null,
+      "variant": false
+    },
+    {
+      "code": "_Primary_UPC_Category_Root_EN",
+      "default_value": null,
+      "description": "12 OR 13 Digits/Number. Acceptable UPC TYPE: UPC-A and EAN13.  Not mandatory for non-inventory products.",
+      "description_translations": [
+        {
+          "locale": "en",
+          "value": "12 OR 13 Digits/Number. Acceptable UPC TYPE: UPC-A and EAN13.  Not mandatory for non-inventory products."
+        }
+      ],
+      "example": "This is a text",
+      "hierarchy_code": "",
+      "label": "Primary UPC",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "Primary UPC"
+        }
+      ],
+      "required": true,
+      "requirement_level": "REQUIRED",
+      "roles": [
+        {
+          "parameters": [
+            {
+              "name": "code",
+              "value": "UPC-A"
+            }
+          ],
+          "type": "UNIQUE_IDENTIFIER"
+        }
+      ],
+      "type": "TEXT",
+      "type_parameter": null,
+      "type_parameters": null,
+      "validations": "PRODUCT_REFERENCE|UPC|EAN-13",
+      "values": null,
+      "values_list": null,
+      "variant": false
+    },
+    {
+      "code": "_Model_Number_Category_Root_EN",
+      "default_value": null,
+      "description": "Model number or name of the product (Up to 20 char). Do not use the less-than or greater-than characters.",
+      "description_translations": [
+        {
+          "locale": "en",
+          "value": "Model number or name of the product (Up to 20 char). Do not use the less-than or greater-than characters."
+        }
+      ],
+      "example": "This is a text",
+      "hierarchy_code": "",
+      "label": "Model Number",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "Model Number"
+        }
+      ],
+      "required": true,
+      "requirement_level": "REQUIRED",
+      "roles": [],
+      "type": "TEXT",
+      "type_parameter": null,
+      "type_parameters": null,
+      "validations": "MAX_LENGTH|20",
+      "values": null,
+      "values_list": null,
+      "variant": false
+    },
+    {
+      "code": "_Manufacturers_Part_Number_Category_Root_EN",
+      "default_value": null,
+      "description": "Alphanumeric - up to 30 chars. Do not use the less-than or greater-than characters. Required to order from vendor. Case/character sensitive for EDI transmission. Not Mandatory for non-inventory set-up",
+      "description_translations": [
+        {
+          "locale": "en",
+          "value": "Alphanumeric - up to 30 chars. Do not use the less-than or greater-than characters. Required to order from vendor. Case/character sensitive for EDI transmission. Not Mandatory for non-inventory set-up"
+        }
+      ],
+      "example": "This is a text",
+      "hierarchy_code": "",
+      "label": "Manufacturer's Part Number",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "Manufacturer's Part Number"
+        }
+      ],
+      "required": true,
+      "requirement_level": "REQUIRED",
+      "roles": [],
+      "type": "TEXT",
+      "type_parameter": null,
+      "type_parameters": null,
+      "validations": "MAX_LENGTH|30",
+      "values": null,
+      "values_list": null,
+      "variant": false
+    },
+    {
+      "code": "_Long_Description_BB_Category_Root_EN",
+      "default_value": null,
+      "description": "More detailed item information that's relevant to consumers.",
+      "description_translations": [
+        {
+          "locale": "en",
+          "value": "More detailed item information that's relevant to consumers."
+        }
+      ],
+      "example": null,
+      "hierarchy_code": "",
+      "label": "Long Description BB (EN)",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "Long Description BB (EN)"
+        }
+      ],
+      "required": false,
+      "requirement_level": "OPTIONAL",
+      "roles": [],
+      "transformations": "REGEXP|<li[^>]*>|\\n ·,REGEXP|<br[^>]*>|\\n,REGEXP|<?.li?.>|\\n ·",
+      "type": "LONG_TEXT",
+      "type_parameter": null,
+      "type_parameters": null,
+      "validations": "MAX_LENGTH|10000",
+      "values": null,
+      "values_list": null,
+      "variant": false
+    },
+    {
+      "code": "_MP_Source_Image_URL_01_Category_Root_EN",
+      "default_value": null,
+      "description": "Provide a source for the main image of the product. Enter a publicly available image URL or upload an image. Minimum size 500x500. Max size 10 MB.",
+      "description_translations": [
+        {
+          "locale": "en",
+          "value": "Provide a source for the main image of the product. Enter a publicly available image URL or upload an image. Minimum size 500x500. Max size 10 MB."
+        }
+      ],
+      "example": null,
+      "hierarchy_code": "",
+      "label": "01 - Image Source (Main Image)",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "01 - Image Source (Main Image)"
+        }
+      ],
+      "required": true,
+      "requirement_level": "REQUIRED",
+      "roles": [
+        {
+          "parameters": [],
+          "type": "MAIN_IMAGE"
+        }
+      ],
+      "type": "MEDIA",
+      "type_parameter": "10240",
+      "type_parameters": [
+        {
+          "name": "MAX_SIZE",
+          "value": "10240"
+        },
+        {
+          "name": "TYPE",
+          "value": "IMAGE"
+        }
+      ],
+      "values": null,
+      "values_list": null,
+      "variant": false
+    },
+    {
+      "code": "_ProductCondition_20257570_CAT_1084_EN",
+      "default_value": null,
+      "description": "Brand new = sealed and unused. Open box = packaging has been opened, product is unused. Refurbished products have been used but inspected and restored to 100% functionality. Refurbs are graded on cosmetic condition: Excellent = no visible blemishes, Good = minor blemishes, Fair = noticeable blemishes. Warranty of 1 year must be provided for Brand New, Open Box, and Refurb Excellent. Warranty of min. 90 days for Refurb Good and Fair.",
+      "description_translations": [
+        {
+          "locale": "en",
+          "value": "Brand new = sealed and unused. Open box = packaging has been opened, product is unused. Refurbished products have been used but inspected and restored to 100% functionality. Refurbs are graded on cosmetic condition: Excellent = no visible blemishes, Good = minor blemishes, Fair = noticeable blemishes. Warranty of 1 year must be provided for Brand New, Open Box, and Refurb Excellent. Warranty of min. 90 days for Refurb Good and Fair."
+        }
+      ],
+      "example": "Refurbished Fair",
+      "hierarchy_code": "CAT_1084",
+      "label": "Product Condition",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "Product Condition"
+        }
+      ],
+      "required": true,
+      "requirement_level": "REQUIRED",
+      "roles": [],
+      "type": "LIST",
+      "type_parameter": "Product_Condition_B",
+      "type_parameters": [
+        {
+          "name": "LIST_CODE",
+          "value": "Product_Condition_B"
+        }
+      ],
+      "values": null,
+      "values_list": "Product_Condition_B",
+      "variant": false
+    },
+    {
+      "code": "_InternalorExternal_13353_CAT_1084_EN",
+      "default_value": null,
+      "description": "Indicate whether the product is an external or internal hard drive.",
+      "description_translations": [
+        {
+          "locale": "en",
+          "value": "Indicate whether the product is an external or internal hard drive."
+        }
+      ],
+      "example": "Internal",
+      "hierarchy_code": "CAT_1084",
+      "label": "Internal or External",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "Internal or External"
+        }
+      ],
+      "required": true,
+      "requirement_level": "REQUIRED",
+      "roles": [],
+      "type": "LIST",
+      "type_parameter": "Internal_External",
+      "type_parameters": [
+        {
+          "name": "LIST_CODE",
+          "value": "Internal_External"
+        }
+      ],
+      "values": null,
+      "values_list": "Internal_External",
+      "variant": false
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "carriers": [
+    {
+      "code": "CPCL",
+      "label": "Canada Post",
+      "standard_code": "ca-post",
+      "tracking_url": "https://www.canadapost.ca/track-reperage/en#/details/{trackingId}"
+    },
+    {
+      "code": "CPAR",
+      "label": "Canpar",
+      "standard_code": "canpar",
+      "tracking_url": "https://www.canpar.ca/en/track/TrackingAction.do?reference={trackingId}"
+    },
+    {
+      "code": "DnRF",
+      "label": "Day & Ross (Freight)",
+      "standard_code": "day-ross",
+      "tracking_url": "https://dayross.com/view-shipment-tracking?division=Freight&probillNumber={trackingId}"
+    },
+    {
+      "code": "DnRS",
+      "label": "Day & Ross (Same Day)",
+      "standard_code": "day-ross",
+      "tracking_url": "https://dayross.com/view-shipment-tracking?division=Sameday&probillNumber={trackingId}"
+    },
+    {
+      "code": "DHL",
+      "label": "DHL",
+      "standard_code": "dhl",
+      "tracking_url": "https://www.dhl.com/ca-en/home/tracking/tracking-express.html?submit=1&tracking-id={trackingId}"
+    },
+    {
+      "code": "FEDX",
+      "label": "Fedex",
+      "standard_code": "fedex",
+      "tracking_url": "https://www.fedex.com/fedextrack/?trknbr={trackingId}"
+    },
+    {
+      "code": "ITLC",
+      "label": "Intelcom",
+      "standard_code": "intelcom-express",
+      "tracking_url": "https://intelcom.ca/en/track-your-package/?tracking-id={trackingId}"
+    },
+    {
+      "code": "LTR",
+      "label": "Lettermail (Canada Post)",
+      "standard_code": "ca-post",
+      "tracking_url": "https://www.canadapost-postescanada.ca/cpc/en/support/articles/lettermail/overview.page"
+    },
+    {
+      "code": "LCSL",
+      "label": "Loomis",
+      "standard_code": "loomis-express",
+      "tracking_url": "https://www.loomisexpress.com/loomship/en/Track/TrackStatus?wbs={trackingId}"
+    },
+    {
+      "code": "PRLA",
+      "label": "Purolator",
+      "standard_code": "purolator",
+      "tracking_url": "http://www.purolator.com/purolator/ship-track/tracking-details.page?pin={trackingId}"
+    },
+    {
+      "code": "LTL",
+      "label": "Scheduled Delivery",
+      "tracking_url": "https://www.bestbuy.ca/en-ca/help/blt9dc31dabc18a0f99/bltac4d6a45b29bb8ec"
+    },
+    {
+      "code": "SWSH",
+      "label": "Swiship",
+      "standard_code": "swiship",
+      "tracking_url": "https://www.swiship.com/track/?id={trackingId}"
+    },
+    {
+      "code": "uniuni",
+      "label": "Uni Uni",
+      "standard_code": "uniuni",
+      "tracking_url": "https://www.uniuni.com/tracking/?no={trackingId}"
+    },
+    {
+      "code": "UPSN",
+      "label": "UPS",
+      "standard_code": "ups",
+      "tracking_url": "https://wwwapps.ups.com/tracking/tracking.cgi?tracknum={trackingId}"
+    },
+    {
+      "code": "USPS",
+      "label": "US Postal Service",
+      "standard_code": "usps",
+      "tracking_url": "https://tools.usps.com/go/TrackConfirmAction.action?tLabels={trackingId}"
+    }
+  ]
+}

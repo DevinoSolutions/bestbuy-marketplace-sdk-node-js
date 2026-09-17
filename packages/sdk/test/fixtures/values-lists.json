@@ -1,0 +1,150 @@
+{
+  "values_lists": [
+    {
+      "code": "2-Sided_Scanning",
+      "label": "2-Sided Scanning",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "2-Sided Scanning"
+        }
+      ],
+      "values": [
+        {
+          "code": "No",
+          "label": "No",
+          "label_translations": [
+            {
+              "locale": "en",
+              "value": "No"
+            }
+          ]
+        },
+        {
+          "code": "Yes",
+          "label": "Yes",
+          "label_translations": [
+            {
+              "locale": "en",
+              "value": "Yes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "3D_Print_Technology",
+      "label": "3D Print Technology",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "3D Print Technology"
+        }
+      ],
+      "values": [
+        {
+          "code": "Resin (SLA/MSLA/DLP)",
+          "label": "Resin (SLA/MSLA/DLP)",
+          "label_translations": [
+            {
+              "locale": "en",
+              "value": "Resin (SLA/MSLA/DLP)"
+            }
+          ]
+        },
+        {
+          "code": "Multi-Process (3-in-1)",
+          "label": "Multi-Process (3-in-1)",
+          "label_translations": [
+            {
+              "locale": "en",
+              "value": "Multi-Process (3-in-1)"
+            }
+          ]
+        },
+        {
+          "code": "FDM (Filament)",
+          "label": "FDM (Filament)",
+          "label_translations": [
+            {
+              "locale": "en",
+              "value": "FDM (Filament)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "80_PLUS_Certification",
+      "label": "80 PLUS Certification",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "80 PLUS Certification"
+        }
+      ],
+      "values": [
+        {
+          "code": "80 PLUS Platinum",
+          "label": "80 PLUS Platinum",
+          "label_translations": [
+            {
+              "locale": "en",
+              "value": "80 PLUS Platinum"
+            }
+          ]
+        },
+        {
+          "code": "80 PLUS",
+          "label": "80 PLUS",
+          "label_translations": [
+            {
+              "locale": "en",
+              "value": "80 PLUS"
+            }
+          ]
+        },
+        {
+          "code": "80 PLUS Gold",
+          "label": "80 PLUS Gold",
+          "label_translations": [
+            {
+              "locale": "en",
+              "value": "80 PLUS Gold"
+            }
+          ]
+        },
+        {
+          "code": "80 PLUS Silver",
+          "label": "80 PLUS Silver",
+          "label_translations": [
+            {
+              "locale": "en",
+              "value": "80 PLUS Silver"
+            }
+          ]
+        },
+        {
+          "code": "80 PLUS Bronze",
+          "label": "80 PLUS Bronze",
+          "label_translations": [
+            {
+              "locale": "en",
+              "value": "80 PLUS Bronze"
+            }
+          ]
+        },
+        {
+          "code": "80 PLUS Titanium",
+          "label": "80 PLUS Titanium",
+          "label_translations": [
+            {
+              "locale": "en",
+              "value": "80 PLUS Titanium"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

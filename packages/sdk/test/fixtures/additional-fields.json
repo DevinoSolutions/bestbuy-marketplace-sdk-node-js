@@ -1,0 +1,30 @@
+{
+  "additional_fields": [
+    {
+      "code": "manufacturer-warranty",
+      "description": "Seller's parts and labour warranty in days. If no warranty is available, enter 0 (E.g.: 45)",
+      "editable": true,
+      "entity": "OFFER",
+      "label": "Warranty - Parts & Labour",
+      "regex": "(0|[1-9][0-9]*)",
+      "required": true,
+      "type": "REGEX"
+    },
+    {
+      "code": "ehf-amount-on",
+      "editable": true,
+      "entity": "OFFER",
+      "label": "EHF Amount - ON",
+      "required": false,
+      "type": "NUMERIC"
+    },
+    {
+      "code": "price-lock",
+      "editable": false,
+      "entity": "OFFER",
+      "label": "Price Lock",
+      "required": false,
+      "type": "STRING"
+    }
+  ]
+}

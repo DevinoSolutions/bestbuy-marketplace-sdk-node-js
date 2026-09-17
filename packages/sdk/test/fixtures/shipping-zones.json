@@ -1,0 +1,69 @@
+{
+  "shipping_zones": [
+    {
+      "code": "BCLocal",
+      "description": "BC Local V1A-V9Z",
+      "label": "BC Local"
+    },
+    {
+      "code": "BCRemote",
+      "description": "BC Remote V0A-V0Z",
+      "label": "BC Remote"
+    },
+    {
+      "code": "ABLocal",
+      "description": "Alberta Local T1A-T9Z",
+      "label": "Alberta Local"
+    },
+    {
+      "code": "ABRemote",
+      "description": "Alberta Remote T0A-T0Z",
+      "label": "Alberta Remote"
+    },
+    {
+      "code": "ONLocal",
+      "description": "Ontario Local K1A-K9Z,L1A-L9Z,M1A-M9Z,N1A-N9Z,P1A-P9Z",
+      "label": "Ontario Local"
+    },
+    {
+      "code": "ONRemote",
+      "description": "Ontario Remote K0A-K0Z,L0A-L0Z,M0A-M0Z,N0A-N0Z,P0A-P0Z",
+      "label": "Ontario Remote"
+    },
+    {
+      "code": "QCLocal",
+      "description": "Quebec Local G1A-G9Z,H1A-H9Z,J1A-J9Z",
+      "label": "Quebec Local"
+    },
+    {
+      "code": "QCRemote",
+      "description": "Quebec Remote G0A-G0Z,H0A-H0Z,J0A-J0Z",
+      "label": "Quebec Remote"
+    },
+    {
+      "code": "PRLocal",
+      "description": "MB, SK Local R1A-R9Z, S1A-S9Z",
+      "label": "Prairies Local"
+    },
+    {
+      "code": "PRRemote",
+      "description": "MB, SK Remote R0A-R0Z, S0A-S0Z",
+      "label": "Prairies Remote"
+    },
+    {
+      "code": "MRLocal",
+      "description": "NS, NB, PEI, NL Local B1A-B9Z, E1A-E9Z, C1A-C9Z, A1A-A1H, A1N",
+      "label": "Maritime Local"
+    },
+    {
+      "code": "MRRemote",
+      "description": "NS, NB, PEI, NL B0A-B0Z, E0A-E0Z, C0A-C0Z, A0A-A0N",
+      "label": "Maritime Remote"
+    },
+    {
+      "code": "TRLocal",
+      "description": "YT, NT, NU Y1A-Y9Z, X1A-X9Z,Y0A-Y0Z, X0A-X0Z",
+      "label": "Territories"
+    }
+  ]
+}

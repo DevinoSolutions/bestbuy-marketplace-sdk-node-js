@@ -1,0 +1,290 @@
+{
+  "applicable_taxes": [
+    {
+      "code": "ON_HST",
+      "fee_types": ["SUBSCRIPTION", "COMMISSION"],
+      "label": "Ontario HST"
+    },
+    {
+      "code": "TAXDEFAULT",
+      "fee_types": ["ADDITIONAL_FEES"],
+      "label": "Default tax ID"
+    }
+  ],
+  "approval_delay": null,
+  "approval_rate": null,
+  "banner": null,
+  "billing_info": {
+    "bank_city": null,
+    "bank_name": null,
+    "bank_street": null,
+    "bic": null,
+    "iban": null,
+    "owner": null,
+    "zip_code": null
+  },
+  "channels": ["INIT"],
+  "closed_from": null,
+  "closed_to": null,
+  "contact_informations": {
+    "city": "Example City",
+    "civility": "Neutral",
+    "country": "CAN",
+    "email": "seller@example.com",
+    "fax": "",
+    "firstname": "First",
+    "lastname": "Last",
+    "phone": "000-000-0000",
+    "phone_secondary": null,
+    "state": "Example State",
+    "street1": "1 Example Street",
+    "street2": null,
+    "web_site": "https://example.com",
+    "zip_code": "A1A 1A1"
+  },
+  "currency_iso_code": "CAD",
+  "date_created": "2026-07-01T00:36:29Z",
+  "default_billing_information": {
+    "corporate_information": {
+      "company_registration_name": "Example Company Inc.",
+      "company_registration_number": "000000000"
+    },
+    "default_language": "en_US",
+    "fiscal_information": {
+      "tax_identification_country": "CAN"
+    },
+    "id": "00000000-0000-0000-0000-000000000000",
+    "registration_address": {
+      "city": "Example City",
+      "country_iso_code": "CAN",
+      "state": "Example State",
+      "street_1": "1 Example Street",
+      "street_2": null,
+      "zip_code": "A1A 1A1"
+    }
+  },
+  "description": "Example shop description.",
+  "domains": ["PRODUCT"],
+  "evaluations_count": 0,
+  "free_shipping": false,
+  "grade": null,
+  "is_professional": true,
+  "last_updated_date": "2026-07-30T15:00:23Z",
+  "logo": null,
+  "model": "MARKETPLACE",
+  "offers_count": 6,
+  "order_messages_response_delay": null,
+  "orders_count": 0,
+  "payment_details": {
+    "paid_balance": 0,
+    "payable_balance": 0,
+    "pending_balance": 0
+  },
+  "payment_info": {
+    "@type": "ABA",
+    "bank_account_number": "00000",
+    "bank_name": "Example Bank",
+    "bic": null,
+    "owner": "Example Owner",
+    "routing_number": "000000000"
+  },
+  "payment_method_mandatory": true,
+  "premium": false,
+  "pro_details": {
+    "VAT_number": null,
+    "corporate_name": "Example Company Inc.",
+    "identification_number": "000000000",
+    "tax_identification_number": null
+  },
+  "return_policy": "Example return policy.",
+  "shipping": {
+    "lead_time_to_ship": null
+  },
+  "shipping_country": "CAN",
+  "shipping_types": ["M"],
+  "shipping_zones": [
+    "ABLocal",
+    "ABRemote",
+    "BCLocal",
+    "BCRemote",
+    "MRLocal",
+    "MRRemote",
+    "ONLocal",
+    "ONRemote",
+    "PRLocal",
+    "PRRemote",
+    "QCLocal",
+    "QCRemote",
+    "TRLocal"
+  ],
+  "shippings": [
+    {
+      "additional_fields": [],
+      "shipping_free_amount": null,
+      "shipping_type_code": "M",
+      "shipping_type_label": "Ground Regular",
+      "shipping_type_standard_code": "CU_ADD-STD",
+      "shipping_zone_code": "ABLocal",
+      "shipping_zone_label": "Alberta Local"
+    },
+    {
+      "additional_fields": [],
+      "shipping_free_amount": null,
+      "shipping_type_code": "M",
+      "shipping_type_label": "Ground Regular",
+      "shipping_type_standard_code": "CU_ADD-STD",
+      "shipping_zone_code": "ABRemote",
+      "shipping_zone_label": "Alberta Remote"
+    },
+    {
+      "additional_fields": [],
+      "shipping_free_amount": null,
+      "shipping_type_code": "M",
+      "shipping_type_label": "Ground Regular",
+      "shipping_type_standard_code": "CU_ADD-STD",
+      "shipping_zone_code": "BCLocal",
+      "shipping_zone_label": "BC Local"
+    },
+    {
+      "additional_fields": [],
+      "shipping_free_amount": null,
+      "shipping_type_code": "M",
+      "shipping_type_label": "Ground Regular",
+      "shipping_type_standard_code": "CU_ADD-STD",
+      "shipping_zone_code": "BCRemote",
+      "shipping_zone_label": "BC Remote"
+    },
+    {
+      "additional_fields": [],
+      "shipping_free_amount": null,
+      "shipping_type_code": "M",
+      "shipping_type_label": "Ground Regular",
+      "shipping_type_standard_code": "CU_ADD-STD",
+      "shipping_zone_code": "MRLocal",
+      "shipping_zone_label": "Maritime Local"
+    },
+    {
+      "additional_fields": [],
+      "shipping_free_amount": null,
+      "shipping_type_code": "M",
+      "shipping_type_label": "Ground Regular",
+      "shipping_type_standard_code": "CU_ADD-STD",
+      "shipping_zone_code": "MRRemote",
+      "shipping_zone_label": "Maritime Remote"
+    },
+    {
+      "additional_fields": [],
+      "shipping_free_amount": null,
+      "shipping_type_code": "M",
+      "shipping_type_label": "Ground Regular",
+      "shipping_type_standard_code": "CU_ADD-STD",
+      "shipping_zone_code": "ONLocal",
+      "shipping_zone_label": "Ontario Local"
+    },
+    {
+      "additional_fields": [],
+      "shipping_free_amount": null,
+      "shipping_type_code": "M",
+      "shipping_type_label": "Ground Regular",
+      "shipping_type_standard_code": "CU_ADD-STD",
+      "shipping_zone_code": "ONRemote",
+      "shipping_zone_label": "Ontario Remote"
+    },
+    {
+      "additional_fields": [],
+      "shipping_free_amount": null,
+      "shipping_type_code": "M",
+      "shipping_type_label": "Ground Regular",
+      "shipping_type_standard_code": "CU_ADD-STD",
+      "shipping_zone_code": "PRLocal",
+      "shipping_zone_label": "Prairies Local"
+    },
+    {
+      "additional_fields": [],
+      "shipping_free_amount": null,
+      "shipping_type_code": "M",
+      "shipping_type_label": "Ground Regular",
+      "shipping_type_standard_code": "CU_ADD-STD",
+      "shipping_zone_code": "PRRemote",
+      "shipping_zone_label": "Prairies Remote"
+    },
+    {
+      "additional_fields": [],
+      "shipping_free_amount": null,
+      "shipping_type_code": "M",
+      "shipping_type_label": "Ground Regular",
+      "shipping_type_standard_code": "CU_ADD-STD",
+      "shipping_zone_code": "QCLocal",
+      "shipping_zone_label": "Quebec Local"
+    },
+    {
+      "additional_fields": [],
+      "shipping_free_amount": null,
+      "shipping_type_code": "M",
+      "shipping_type_label": "Ground Regular",
+      "shipping_type_standard_code": "CU_ADD-STD",
+      "shipping_zone_code": "QCRemote",
+      "shipping_zone_label": "Quebec Remote"
+    },
+    {
+      "additional_fields": [],
+      "shipping_free_amount": null,
+      "shipping_type_code": "M",
+      "shipping_type_label": "Ground Regular",
+      "shipping_type_standard_code": "CU_ADD-STD",
+      "shipping_zone_code": "TRLocal",
+      "shipping_zone_label": "Territories"
+    }
+  ],
+  "shop_additional_fields": [
+    {
+      "code": "bc-pst",
+      "type": "BOOLEAN",
+      "value": "true"
+    },
+    {
+      "code": "french-supported",
+      "type": "BOOLEAN",
+      "value": "true"
+    },
+    {
+      "code": "hst-gst",
+      "type": "BOOLEAN",
+      "value": "true"
+    },
+    {
+      "code": "mb-pst",
+      "type": "BOOLEAN",
+      "value": "true"
+    },
+    {
+      "code": "qc-qst",
+      "type": "BOOLEAN",
+      "value": "true"
+    },
+    {
+      "code": "seller-validation",
+      "type": "BOOLEAN",
+      "value": "true"
+    },
+    {
+      "code": "shop-description-fr",
+      "type": "STRING",
+      "value": "Example shop description."
+    },
+    {
+      "code": "shop-name-fr",
+      "type": "STRING",
+      "value": "Example Shop"
+    },
+    {
+      "code": "sk-pst",
+      "type": "BOOLEAN",
+      "value": "true"
+    }
+  ],
+  "shop_id": 1234,
+  "shop_name": "Example Shop",
+  "shop_state": "OPEN",
+  "suspension_type": null
+}

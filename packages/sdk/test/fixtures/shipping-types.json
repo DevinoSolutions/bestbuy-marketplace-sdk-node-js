@@ -1,0 +1,13 @@
+{
+  "shipping_types": [
+    {
+      "click_and_collect": false,
+      "code": "M",
+      "description": "Ground Regular",
+      "ignore_lead_time_to_ship": false,
+      "label": "Ground Regular",
+      "mandatory_tracking": true,
+      "standard_code": "CU_ADD-STD"
+    }
+  ]
+}

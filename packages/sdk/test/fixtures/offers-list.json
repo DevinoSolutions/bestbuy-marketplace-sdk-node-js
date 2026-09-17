@@ -1,0 +1,951 @@
+{
+  "offers": [
+    {
+      "active": true,
+      "all_prices": [
+        {
+          "channel_code": null,
+          "discount_end_date": null,
+          "discount_start_date": null,
+          "price": 634.99,
+          "unit_discount_price": null,
+          "unit_origin_price": 634.99,
+          "volume_prices": [
+            {
+              "price": 634.99,
+              "quantity_threshold": 1,
+              "unit_discount_price": null,
+              "unit_origin_price": 634.99
+            }
+          ]
+        }
+      ],
+      "allow_quote_requests": false,
+      "applicable_pricing": {
+        "channel_code": null,
+        "discount_end_date": null,
+        "discount_start_date": null,
+        "price": 634.99,
+        "unit_discount_price": null,
+        "unit_origin_price": 634.99,
+        "volume_prices": [
+          {
+            "price": 634.99,
+            "quantity_threshold": 1,
+            "unit_discount_price": null,
+            "unit_origin_price": 634.99
+          }
+        ]
+      },
+      "category_code": "CAT_1084",
+      "category_label": "Hard Drives",
+      "channels": ["INIT"],
+      "currency_iso_code": "CAD",
+      "description": null,
+      "discount": null,
+      "fulfillment": {
+        "center": {
+          "code": "DEFAULT"
+        }
+      },
+      "inactivity_reasons": [],
+      "leadtime_to_ship": 2,
+      "logistic_class": {
+        "code": "SMALL",
+        "label": "Small Box (0.5 - 3.0kg/1.1 to 6.6Lbs)"
+      },
+      "min_shipping_price": 0,
+      "min_shipping_price_additional": 0,
+      "min_shipping_type": "M",
+      "min_shipping_zone": "BCLocal",
+      "msrp": null,
+      "offer_additional_fields": [
+        {
+          "code": "manufacturer-warranty",
+          "type": "REGEX",
+          "value": "365"
+        }
+      ],
+      "offer_id": 100000001,
+      "price": 634.99,
+      "price_additional_info": null,
+      "product_brand": "ExampleBrand",
+      "product_description": "Example product description.",
+      "product_references": [
+        {
+          "reference": "000000000001",
+          "reference_type": "UPC-A"
+        }
+      ],
+      "product_sku": "20000001",
+      "product_title": "Example Internal SSD 1TB",
+      "quantity": 1,
+      "shipping_deadline": "2026-09-16T06:59:59.999Z",
+      "shop_sku": "SHOP-SKU-1",
+      "state_code": "11",
+      "total_price": 634.99,
+      "warehouses": null
+    },
+    {
+      "active": false,
+      "all_prices": [
+        {
+          "channel_code": null,
+          "discount_end_date": null,
+          "discount_start_date": null,
+          "price": 594.99,
+          "unit_discount_price": null,
+          "unit_origin_price": 594.99,
+          "volume_prices": [
+            {
+              "price": 594.99,
+              "quantity_threshold": 1,
+              "unit_discount_price": null,
+              "unit_origin_price": 594.99
+            }
+          ]
+        }
+      ],
+      "allow_quote_requests": false,
+      "applicable_pricing": {
+        "channel_code": null,
+        "discount_end_date": null,
+        "discount_start_date": null,
+        "price": 594.99,
+        "unit_discount_price": null,
+        "unit_origin_price": 594.99,
+        "volume_prices": [
+          {
+            "price": 594.99,
+            "quantity_threshold": 1,
+            "unit_discount_price": null,
+            "unit_origin_price": 594.99
+          }
+        ]
+      },
+      "category_code": "CAT_1084",
+      "category_label": "Hard Drives",
+      "channels": ["INIT"],
+      "currency_iso_code": "CAD",
+      "description": null,
+      "discount": null,
+      "fulfillment": {
+        "center": {
+          "code": "DEFAULT"
+        }
+      },
+      "inactivity_reasons": ["PRODUCT_STATUS_REJECTED"],
+      "leadtime_to_ship": 2,
+      "logistic_class": {
+        "code": "SMALL",
+        "label": "Small Box (0.5 - 3.0kg/1.1 to 6.6Lbs)"
+      },
+      "min_shipping_price": 0,
+      "min_shipping_price_additional": 0,
+      "min_shipping_type": "M",
+      "min_shipping_zone": "BCLocal",
+      "msrp": null,
+      "offer_additional_fields": [
+        {
+          "code": "manufacturer-warranty",
+          "type": "REGEX",
+          "value": "365"
+        }
+      ],
+      "offer_id": 100000002,
+      "price": 594.99,
+      "price_additional_info": null,
+      "product_brand": "ExampleBrand",
+      "product_description": "Example product description.",
+      "product_references": [
+        {
+          "reference": "000000000002",
+          "reference_type": "UPC-A"
+        }
+      ],
+      "product_sku": "20000002",
+      "product_title": "Example Internal SSD 2TB",
+      "quantity": 1,
+      "shipping_deadline": "2026-09-16T06:59:59.999Z",
+      "shop_sku": "SHOP-SKU-2",
+      "state_code": "11",
+      "total_price": 594.99,
+      "warehouses": null
+    },
+    {
+      "active": true,
+      "all_prices": [
+        {
+          "channel_code": null,
+          "discount_end_date": null,
+          "discount_start_date": null,
+          "price": 339.99,
+          "unit_discount_price": null,
+          "unit_origin_price": 339.99,
+          "volume_prices": [
+            {
+              "price": 339.99,
+              "quantity_threshold": 1,
+              "unit_discount_price": null,
+              "unit_origin_price": 339.99
+            }
+          ]
+        }
+      ],
+      "allow_quote_requests": false,
+      "applicable_pricing": {
+        "channel_code": null,
+        "discount_end_date": null,
+        "discount_start_date": null,
+        "price": 339.99,
+        "unit_discount_price": null,
+        "unit_origin_price": 339.99,
+        "volume_prices": [
+          {
+            "price": 339.99,
+            "quantity_threshold": 1,
+            "unit_discount_price": null,
+            "unit_origin_price": 339.99
+          }
+        ]
+      },
+      "category_code": "CAT_1084",
+      "category_label": "Hard Drives",
+      "channels": ["INIT"],
+      "currency_iso_code": "CAD",
+      "description": null,
+      "discount": null,
+      "fulfillment": {
+        "center": {
+          "code": "DEFAULT"
+        }
+      },
+      "inactivity_reasons": [],
+      "leadtime_to_ship": 2,
+      "logistic_class": {
+        "code": "SMALL",
+        "label": "Small Box (0.5 - 3.0kg/1.1 to 6.6Lbs)"
+      },
+      "min_shipping_price": 0,
+      "min_shipping_price_additional": 0,
+      "min_shipping_type": "M",
+      "min_shipping_zone": "BCLocal",
+      "msrp": null,
+      "offer_additional_fields": [
+        {
+          "code": "manufacturer-warranty",
+          "type": "REGEX",
+          "value": "365"
+        }
+      ],
+      "offer_id": 100000003,
+      "price": 339.99,
+      "price_additional_info": null,
+      "product_brand": "ExampleBrand",
+      "product_description": "Example product description.",
+      "product_references": [
+        {
+          "reference": "000000000003",
+          "reference_type": "UPC-A"
+        }
+      ],
+      "product_sku": "20000003",
+      "product_title": "Example NVMe Drive 4TB",
+      "quantity": 1,
+      "shipping_deadline": "2026-09-16T06:59:59.999Z",
+      "shop_sku": "SHOP-SKU-3",
+      "state_code": "11",
+      "total_price": 339.99,
+      "warehouses": null
+    },
+    {
+      "active": true,
+      "all_prices": [
+        {
+          "channel_code": null,
+          "discount_end_date": null,
+          "discount_start_date": null,
+          "price": 722.49,
+          "unit_discount_price": null,
+          "unit_origin_price": 722.49,
+          "volume_prices": [
+            {
+              "price": 722.49,
+              "quantity_threshold": 1,
+              "unit_discount_price": null,
+              "unit_origin_price": 722.49
+            }
+          ]
+        }
+      ],
+      "allow_quote_requests": false,
+      "applicable_pricing": {
+        "channel_code": null,
+        "discount_end_date": null,
+        "discount_start_date": null,
+        "price": 722.49,
+        "unit_discount_price": null,
+        "unit_origin_price": 722.49,
+        "volume_prices": [
+          {
+            "price": 722.49,
+            "quantity_threshold": 1,
+            "unit_discount_price": null,
+            "unit_origin_price": 722.49
+          }
+        ]
+      },
+      "category_code": "CAT_1084",
+      "category_label": "Hard Drives",
+      "channels": ["INIT"],
+      "currency_iso_code": "CAD",
+      "description": null,
+      "discount": null,
+      "fulfillment": {
+        "center": {
+          "code": "DEFAULT"
+        }
+      },
+      "inactivity_reasons": [],
+      "leadtime_to_ship": 2,
+      "logistic_class": {
+        "code": "SMALL",
+        "label": "Small Box (0.5 - 3.0kg/1.1 to 6.6Lbs)"
+      },
+      "min_shipping_price": 0,
+      "min_shipping_price_additional": 0,
+      "min_shipping_type": "M",
+      "min_shipping_zone": "BCLocal",
+      "msrp": null,
+      "offer_additional_fields": [
+        {
+          "code": "manufacturer-warranty",
+          "type": "REGEX",
+          "value": "365"
+        }
+      ],
+      "offer_id": 100000004,
+      "price": 722.49,
+      "price_additional_info": null,
+      "product_brand": "ExampleBrand",
+      "product_description": "Example product description.",
+      "product_references": [
+        {
+          "reference": "000000000004",
+          "reference_type": "UPC-A"
+        }
+      ],
+      "product_sku": "20000004",
+      "product_title": "Example Portable Drive 2TB",
+      "quantity": 1,
+      "shipping_deadline": "2026-09-16T06:59:59.999Z",
+      "shop_sku": "SHOP-SKU-4",
+      "state_code": "11",
+      "total_price": 722.49,
+      "warehouses": null
+    },
+    {
+      "active": true,
+      "all_prices": [
+        {
+          "channel_code": null,
+          "discount_end_date": null,
+          "discount_start_date": null,
+          "price": 165.59,
+          "unit_discount_price": null,
+          "unit_origin_price": 165.59,
+          "volume_prices": [
+            {
+              "price": 165.59,
+              "quantity_threshold": 1,
+              "unit_discount_price": null,
+              "unit_origin_price": 165.59
+            }
+          ]
+        }
+      ],
+      "allow_quote_requests": false,
+      "applicable_pricing": {
+        "channel_code": null,
+        "discount_end_date": null,
+        "discount_start_date": null,
+        "price": 165.59,
+        "unit_discount_price": null,
+        "unit_origin_price": 165.59,
+        "volume_prices": [
+          {
+            "price": 165.59,
+            "quantity_threshold": 1,
+            "unit_discount_price": null,
+            "unit_origin_price": 165.59
+          }
+        ]
+      },
+      "category_code": "CAT_1076",
+      "category_label": "Computer Memory",
+      "channels": ["INIT"],
+      "currency_iso_code": "CAD",
+      "description": null,
+      "discount": null,
+      "fulfillment": {
+        "center": {
+          "code": "DEFAULT"
+        }
+      },
+      "inactivity_reasons": [],
+      "leadtime_to_ship": 2,
+      "logistic_class": {
+        "code": "SMALL",
+        "label": "Small Box (0.5 - 3.0kg/1.1 to 6.6Lbs)"
+      },
+      "min_shipping_price": 0,
+      "min_shipping_price_additional": 0,
+      "min_shipping_type": "M",
+      "min_shipping_zone": "BCLocal",
+      "msrp": null,
+      "offer_additional_fields": [
+        {
+          "code": "manufacturer-warranty",
+          "type": "REGEX",
+          "value": "365"
+        }
+      ],
+      "offer_id": 100000005,
+      "price": 165.59,
+      "price_additional_info": null,
+      "product_brand": "ExampleBrand",
+      "product_description": "Example product description.",
+      "product_references": [
+        {
+          "reference": "000000000005",
+          "reference_type": "UPC-A"
+        }
+      ],
+      "product_sku": "20000005",
+      "product_title": "Example Memory Kit 32GB",
+      "quantity": 1,
+      "shipping_deadline": "2026-09-16T06:59:59.999Z",
+      "shop_sku": "SHOP-SKU-5",
+      "state_code": "11",
+      "total_price": 165.59,
+      "warehouses": null
+    },
+    {
+      "active": true,
+      "all_prices": [
+        {
+          "channel_code": null,
+          "discount_end_date": null,
+          "discount_start_date": null,
+          "price": 934.99,
+          "unit_discount_price": null,
+          "unit_origin_price": 934.99,
+          "volume_prices": [
+            {
+              "price": 934.99,
+              "quantity_threshold": 1,
+              "unit_discount_price": null,
+              "unit_origin_price": 934.99
+            }
+          ]
+        }
+      ],
+      "allow_quote_requests": false,
+      "applicable_pricing": {
+        "channel_code": null,
+        "discount_end_date": null,
+        "discount_start_date": null,
+        "price": 934.99,
+        "unit_discount_price": null,
+        "unit_origin_price": 934.99,
+        "volume_prices": [
+          {
+            "price": 934.99,
+            "quantity_threshold": 1,
+            "unit_discount_price": null,
+            "unit_origin_price": 934.99
+          }
+        ]
+      },
+      "category_code": "CAT_1084",
+      "category_label": "Hard Drives",
+      "channels": ["INIT"],
+      "currency_iso_code": "CAD",
+      "description": null,
+      "discount": null,
+      "fulfillment": {
+        "center": {
+          "code": "DEFAULT"
+        }
+      },
+      "inactivity_reasons": [],
+      "leadtime_to_ship": 2,
+      "logistic_class": {
+        "code": "SMALL",
+        "label": "Small Box (0.5 - 3.0kg/1.1 to 6.6Lbs)"
+      },
+      "min_shipping_price": 0,
+      "min_shipping_price_additional": 0,
+      "min_shipping_type": "M",
+      "min_shipping_zone": "BCLocal",
+      "msrp": null,
+      "offer_additional_fields": [
+        {
+          "code": "manufacturer-warranty",
+          "type": "REGEX",
+          "value": "365"
+        }
+      ],
+      "offer_id": 100000006,
+      "price": 934.99,
+      "price_additional_info": null,
+      "product_brand": "ExampleBrand",
+      "product_description": "Example product description.",
+      "product_references": [
+        {
+          "reference": "000000000006",
+          "reference_type": "UPC-A"
+        }
+      ],
+      "product_sku": "20000006",
+      "product_title": "Example Internal SSD 1TB",
+      "quantity": 1,
+      "shipping_deadline": "2026-09-16T06:59:59.999Z",
+      "shop_sku": "SHOP-SKU-6",
+      "state_code": "11",
+      "total_price": 934.99,
+      "warehouses": null
+    },
+    {
+      "active": false,
+      "all_prices": [
+        {
+          "channel_code": null,
+          "discount_end_date": null,
+          "discount_start_date": null,
+          "price": 764.99,
+          "unit_discount_price": null,
+          "unit_origin_price": 764.99,
+          "volume_prices": [
+            {
+              "price": 764.99,
+              "quantity_threshold": 1,
+              "unit_discount_price": null,
+              "unit_origin_price": 764.99
+            }
+          ]
+        }
+      ],
+      "allow_quote_requests": false,
+      "applicable_pricing": {
+        "channel_code": null,
+        "discount_end_date": null,
+        "discount_start_date": null,
+        "price": 764.99,
+        "unit_discount_price": null,
+        "unit_origin_price": 764.99,
+        "volume_prices": [
+          {
+            "price": 764.99,
+            "quantity_threshold": 1,
+            "unit_discount_price": null,
+            "unit_origin_price": 764.99
+          }
+        ]
+      },
+      "category_code": "CAT_660824",
+      "category_label": "Other Computer & Laptop Accessories",
+      "channels": ["INIT"],
+      "currency_iso_code": "CAD",
+      "description": null,
+      "discount": null,
+      "fulfillment": {
+        "center": {
+          "code": "DEFAULT"
+        }
+      },
+      "inactivity_reasons": ["PRODUCT_STATUS_REJECTED"],
+      "leadtime_to_ship": 2,
+      "logistic_class": {
+        "code": "SMALL",
+        "label": "Small Box (0.5 - 3.0kg/1.1 to 6.6Lbs)"
+      },
+      "min_shipping_price": 0,
+      "min_shipping_price_additional": 0,
+      "min_shipping_type": "M",
+      "min_shipping_zone": "BCLocal",
+      "msrp": null,
+      "offer_additional_fields": [
+        {
+          "code": "manufacturer-warranty",
+          "type": "REGEX",
+          "value": "365"
+        }
+      ],
+      "offer_id": 100000007,
+      "price": 764.99,
+      "price_additional_info": null,
+      "product_brand": "ExampleBrand",
+      "product_description": "Example product description.",
+      "product_references": [
+        {
+          "reference": "000000000007",
+          "reference_type": "UPC-A"
+        }
+      ],
+      "product_sku": "20000007",
+      "product_title": "Example Internal SSD 2TB",
+      "quantity": 1,
+      "shipping_deadline": "2026-09-16T06:59:59.999Z",
+      "shop_sku": "SHOP-SKU-7",
+      "state_code": "11",
+      "total_price": 764.99,
+      "warehouses": null
+    },
+    {
+      "active": false,
+      "all_prices": [
+        {
+          "channel_code": null,
+          "discount_end_date": null,
+          "discount_start_date": null,
+          "price": 429.99,
+          "unit_discount_price": null,
+          "unit_origin_price": 429.99,
+          "volume_prices": [
+            {
+              "price": 429.99,
+              "quantity_threshold": 1,
+              "unit_discount_price": null,
+              "unit_origin_price": 429.99
+            }
+          ]
+        }
+      ],
+      "allow_quote_requests": false,
+      "applicable_pricing": {
+        "channel_code": null,
+        "discount_end_date": null,
+        "discount_start_date": null,
+        "price": 429.99,
+        "unit_discount_price": null,
+        "unit_origin_price": 429.99,
+        "volume_prices": [
+          {
+            "price": 429.99,
+            "quantity_threshold": 1,
+            "unit_discount_price": null,
+            "unit_origin_price": 429.99
+          }
+        ]
+      },
+      "category_code": "CAT_660824",
+      "category_label": "Other Computer & Laptop Accessories",
+      "channels": ["INIT"],
+      "currency_iso_code": "CAD",
+      "description": null,
+      "discount": null,
+      "fulfillment": {
+        "center": {
+          "code": "DEFAULT"
+        }
+      },
+      "inactivity_reasons": ["PRODUCT_STATUS_REJECTED"],
+      "leadtime_to_ship": 2,
+      "logistic_class": {
+        "code": "SMALL",
+        "label": "Small Box (0.5 - 3.0kg/1.1 to 6.6Lbs)"
+      },
+      "min_shipping_price": 0,
+      "min_shipping_price_additional": 0,
+      "min_shipping_type": "M",
+      "min_shipping_zone": "BCLocal",
+      "msrp": null,
+      "offer_additional_fields": [
+        {
+          "code": "manufacturer-warranty",
+          "type": "REGEX",
+          "value": "365"
+        }
+      ],
+      "offer_id": 100000008,
+      "price": 429.99,
+      "price_additional_info": null,
+      "product_brand": "ExampleBrand",
+      "product_description": "Example product description.",
+      "product_references": [
+        {
+          "reference": "000000000008",
+          "reference_type": "UPC-A"
+        }
+      ],
+      "product_sku": "20000008",
+      "product_title": "Example NVMe Drive 4TB",
+      "quantity": 1,
+      "shipping_deadline": "2026-09-16T06:59:59.999Z",
+      "shop_sku": "SHOP-SKU-8",
+      "state_code": "11",
+      "total_price": 429.99,
+      "warehouses": null
+    },
+    {
+      "active": true,
+      "all_prices": [
+        {
+          "channel_code": null,
+          "discount_end_date": null,
+          "discount_start_date": null,
+          "price": 789.99,
+          "unit_discount_price": null,
+          "unit_origin_price": 789.99,
+          "volume_prices": [
+            {
+              "price": 789.99,
+              "quantity_threshold": 1,
+              "unit_discount_price": null,
+              "unit_origin_price": 789.99
+            }
+          ]
+        }
+      ],
+      "allow_quote_requests": false,
+      "applicable_pricing": {
+        "channel_code": null,
+        "discount_end_date": null,
+        "discount_start_date": null,
+        "price": 789.99,
+        "unit_discount_price": null,
+        "unit_origin_price": 789.99,
+        "volume_prices": [
+          {
+            "price": 789.99,
+            "quantity_threshold": 1,
+            "unit_discount_price": null,
+            "unit_origin_price": 789.99
+          }
+        ]
+      },
+      "category_code": "CAT_1084",
+      "category_label": "Hard Drives",
+      "channels": ["INIT"],
+      "currency_iso_code": "CAD",
+      "description": null,
+      "discount": null,
+      "fulfillment": {
+        "center": {
+          "code": "DEFAULT"
+        }
+      },
+      "inactivity_reasons": [],
+      "leadtime_to_ship": 2,
+      "logistic_class": {
+        "code": "SMALL",
+        "label": "Small Box (0.5 - 3.0kg/1.1 to 6.6Lbs)"
+      },
+      "min_shipping_price": 0,
+      "min_shipping_price_additional": 0,
+      "min_shipping_type": "M",
+      "min_shipping_zone": "BCLocal",
+      "msrp": null,
+      "offer_additional_fields": [
+        {
+          "code": "manufacturer-warranty",
+          "type": "REGEX",
+          "value": "365"
+        }
+      ],
+      "offer_id": 100000009,
+      "price": 789.99,
+      "price_additional_info": null,
+      "product_brand": "ExampleBrand",
+      "product_description": "Example product description.",
+      "product_references": [
+        {
+          "reference": "000000000009",
+          "reference_type": "UPC-A"
+        }
+      ],
+      "product_sku": "20000009",
+      "product_title": "Example Portable Drive 2TB",
+      "quantity": 1,
+      "shipping_deadline": "2026-09-16T06:59:59.999Z",
+      "shop_sku": "SHOP-SKU-9",
+      "state_code": "11",
+      "total_price": 789.99,
+      "warehouses": null
+    },
+    {
+      "active": false,
+      "all_prices": [
+        {
+          "channel_code": null,
+          "discount_end_date": null,
+          "discount_start_date": null,
+          "price": 42.49,
+          "unit_discount_price": null,
+          "unit_origin_price": 42.49,
+          "volume_prices": [
+            {
+              "price": 42.49,
+              "quantity_threshold": 1,
+              "unit_discount_price": null,
+              "unit_origin_price": 42.49
+            }
+          ]
+        }
+      ],
+      "allow_quote_requests": false,
+      "applicable_pricing": {
+        "channel_code": null,
+        "discount_end_date": null,
+        "discount_start_date": null,
+        "price": 42.49,
+        "unit_discount_price": null,
+        "unit_origin_price": 42.49,
+        "volume_prices": [
+          {
+            "price": 42.49,
+            "quantity_threshold": 1,
+            "unit_discount_price": null,
+            "unit_origin_price": 42.49
+          }
+        ]
+      },
+      "category_code": "CAT_23753",
+      "category_label": "Digital Memory",
+      "channels": ["INIT"],
+      "currency_iso_code": "CAD",
+      "description": null,
+      "discount": null,
+      "fulfillment": {
+        "center": {
+          "code": "DEFAULT"
+        }
+      },
+      "inactivity_reasons": ["PRODUCT_STATUS_REJECTED", "CATEGORY_UNAUTHORIZED_TO_SELL"],
+      "leadtime_to_ship": 2,
+      "logistic_class": {
+        "code": "SMALL",
+        "label": "Small Box (0.5 - 3.0kg/1.1 to 6.6Lbs)"
+      },
+      "min_shipping_price": 0,
+      "min_shipping_price_additional": 0,
+      "min_shipping_type": "M",
+      "min_shipping_zone": "BCLocal",
+      "msrp": null,
+      "offer_additional_fields": [
+        {
+          "code": "manufacturer-warranty",
+          "type": "REGEX",
+          "value": "365"
+        }
+      ],
+      "offer_id": 100000010,
+      "price": 42.49,
+      "price_additional_info": null,
+      "product_brand": "ExampleBrand",
+      "product_description": "Example product description.",
+      "product_references": [
+        {
+          "reference": "000000000010",
+          "reference_type": "UPC-A"
+        }
+      ],
+      "product_sku": "20000010",
+      "product_title": "Example Memory Kit 32GB",
+      "quantity": 1,
+      "shipping_deadline": "2026-09-16T06:59:59.999Z",
+      "shop_sku": "SHOP-SKU-10",
+      "state_code": "11",
+      "total_price": 42.49,
+      "warehouses": null
+    },
+    {
+      "active": false,
+      "all_prices": [
+        {
+          "channel_code": null,
+          "discount_end_date": null,
+          "discount_start_date": null,
+          "price": 50.99,
+          "unit_discount_price": null,
+          "unit_origin_price": 50.99,
+          "volume_prices": [
+            {
+              "price": 50.99,
+              "quantity_threshold": 1,
+              "unit_discount_price": null,
+              "unit_origin_price": 50.99
+            }
+          ]
+        }
+      ],
+      "allow_quote_requests": false,
+      "applicable_pricing": {
+        "channel_code": null,
+        "discount_end_date": null,
+        "discount_start_date": null,
+        "price": 50.99,
+        "unit_discount_price": null,
+        "unit_origin_price": 50.99,
+        "volume_prices": [
+          {
+            "price": 50.99,
+            "quantity_threshold": 1,
+            "unit_discount_price": null,
+            "unit_origin_price": 50.99
+          }
+        ]
+      },
+      "category_code": "CAT_23753",
+      "category_label": "Digital Memory",
+      "channels": ["INIT"],
+      "currency_iso_code": "CAD",
+      "description": null,
+      "discount": null,
+      "fulfillment": {
+        "center": {
+          "code": "DEFAULT"
+        }
+      },
+      "inactivity_reasons": ["CATEGORY_UNAUTHORIZED_TO_SELL"],
+      "leadtime_to_ship": 2,
+      "logistic_class": {
+        "code": "SMALL",
+        "label": "Small Box (0.5 - 3.0kg/1.1 to 6.6Lbs)"
+      },
+      "min_shipping_price": 0,
+      "min_shipping_price_additional": 0,
+      "min_shipping_type": "M",
+      "min_shipping_zone": "BCLocal",
+      "msrp": null,
+      "offer_additional_fields": [
+        {
+          "code": "manufacturer-warranty",
+          "type": "REGEX",
+          "value": "365"
+        }
+      ],
+      "offer_id": 100000011,
+      "price": 50.99,
+      "price_additional_info": null,
+      "product_brand": "ExampleBrand",
+      "product_description": "Example product description.",
+      "product_references": [
+        {
+          "reference": "000000000011",
+          "reference_type": "UPC-A"
+        }
+      ],
+      "product_sku": "20000011",
+      "product_title": "Example Internal SSD 1TB",
+      "quantity": 1,
+      "shipping_deadline": "2026-09-16T06:59:59.999Z",
+      "shop_sku": "SHOP-SKU-11",
+      "state_code": "11",
+      "total_price": 50.99,
+      "warehouses": null
+    }
+  ],
+  "total_count": 11
+}

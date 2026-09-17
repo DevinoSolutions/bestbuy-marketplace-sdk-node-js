@@ -1,0 +1,15 @@
+{
+  "date_created": "2026-09-16T21:20:13Z",
+  "has_error_report": true,
+  "import_id": 40208046,
+  "lines_in_error": 10,
+  "lines_in_pending": 0,
+  "lines_in_success": 0,
+  "lines_read": 10,
+  "mode": "NORMAL",
+  "offer_deleted": 0,
+  "offer_inserted": 0,
+  "offer_updated": 0,
+  "status": "COMPLETE",
+  "type": "MIRAKL"
+}

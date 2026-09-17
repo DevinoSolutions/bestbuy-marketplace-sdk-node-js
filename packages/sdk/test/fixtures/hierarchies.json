@@ -1,0 +1,100 @@
+{
+  "hierarchies": [
+    {
+      "code": "CAT_11",
+      "label": "Home Theatre",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "Home Theatre"
+        }
+      ],
+      "level": 1,
+      "parent_code": ""
+    },
+    {
+      "code": "CAT_1084",
+      "label": "Hard Drives",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "Hard Drives"
+        }
+      ],
+      "level": 2,
+      "parent_code": "CAT_30658"
+    },
+    {
+      "code": "CAT_10015",
+      "label": "Speaker Stands and Mounts",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "Speaker Stands and Mounts"
+        }
+      ],
+      "level": 2,
+      "parent_code": "CAT_11"
+    },
+    {
+      "code": "CAT_1024",
+      "label": "Home Theatre Cables & Accessories",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "Home Theatre Cables & Accessories"
+        }
+      ],
+      "level": 2,
+      "parent_code": "CAT_11"
+    },
+    {
+      "code": "CAT_1026",
+      "label": "Home Theatre Systems",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "Home Theatre Systems"
+        }
+      ],
+      "level": 2,
+      "parent_code": "CAT_11"
+    },
+    {
+      "code": "CAT_1047",
+      "label": "Home Speakers - Category Branch",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "Home Speakers - Category Branch"
+        }
+      ],
+      "level": 2,
+      "parent_code": "CAT_11"
+    },
+    {
+      "code": "CAT_10554",
+      "label": "Subwoofers",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "Subwoofers"
+        }
+      ],
+      "level": 3,
+      "parent_code": "CAT_1047"
+    },
+    {
+      "code": "CAT_14700",
+      "label": "Surround Speaker Packages (Speakers & Subwoofer Only)",
+      "label_translations": [
+        {
+          "locale": "en",
+          "value": "Surround Speaker Packages (Speakers & Subwoofer Only)"
+        }
+      ],
+      "level": 3,
+      "parent_code": "CAT_1047"
+    }
+  ]
+}
