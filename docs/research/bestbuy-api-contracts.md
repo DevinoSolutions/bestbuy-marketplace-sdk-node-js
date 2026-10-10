@@ -11,7 +11,8 @@ an owner-authorized offer import added OF24 and its follow-up reads (OF02, OF03)
 On **2026-10-10** every remaining READ endpoint the SDK wraps (account, offers, orders with
 real orders now on the shop, product search, product-import status and reports, catalog
 metadata, shipping) was re-called read-only and compared field by field with the SDK's schemas;
-those rows are marked `VERIFIED 2026-10-10 (live)`. Also on **2026-10-10** the WRITE rows were
+those rows are marked `VERIFIED 2026-10-10 (live)`, as are the later-added reads of the ops
+scripts (P11, P46, P47, OF51, SH31, SH42, SH52, M11, V01, PC01, L01). Also on **2026-10-10** the WRITE rows were
 reconciled with what the owner's own authorized ops scripts had already sent and logged
 (2026-09-16 .. 2026-10-09: OF24 offer batches and P41 product imports, driven through this
 SDK's client); those rows are marked `VERIFIED 2026-10-10 (from live ops writes, <dates>)`. No
@@ -69,33 +70,44 @@ This table is the contract the live-suite read-only guard is built on. It mirror
 `packages/sdk/src/operations.ts`, which is the machine-readable source of truth —
 `scripts/check-live-readonly.ts` parses that file, not this one, so the two must agree.
 
-| SDK method                      | Mirakl | Method | Path                                                   | Access    | Status                                                               |
-| ------------------------------- | ------ | ------ | ------------------------------------------------------ | --------- | -------------------------------------------------------------------- |
-| `account.get`                   | A01    | GET    | `/api/account`                                         | READ      | VERIFIED 2026-10-10 (live)                                           |
-| `offers.list`                   | OF21   | GET    | `/api/offers`                                          | READ      | VERIFIED 2026-10-10 (live)                                           |
-| `offers.get`                    | OF22   | GET    | `/api/offers/{offer_id}`                               | READ      | VERIFIED 2026-10-10 (live)                                           |
-| `offers.states`                 | OF61   | GET    | `/api/offers/states`                                   | READ      | VERIFIED 2026-10-10 (live)                                           |
-| `offers.update`                 | OF24   | POST   | `/api/offers`                                          | **WRITE** | VERIFIED 2026-10-10 (from live ops writes, 2026-09-16 .. 2026-10-09) |
-| `offers.importFile`             | OF01   | POST   | `/api/offers/imports`                                  | **WRITE** | ASSUMPTION                                                           |
-| `offers.getImport`              | OF02   | GET    | `/api/offers/imports/{import_id}`                      | READ      | VERIFIED 2026-10-10 (live)                                           |
-| `offers.getImportErrorReport`   | OF03   | GET    | `/api/offers/imports/{import_id}/error_report`         | READ      | VERIFIED 2026-10-10 (live)                                           |
-| `products.search`               | P31    | GET    | `/api/products`                                        | READ      | VERIFIED 2026-10-10 (live)                                           |
-| `products.importFile`           | P41    | POST   | `/api/products/imports`                                | **WRITE** | VERIFIED 2026-10-10 (from live ops writes, 2026-09-23 .. 2026-10-06) |
-| `products.getImport`            | P42    | GET    | `/api/products/imports/{import_id}`                    | READ      | VERIFIED 2026-10-10 (live)                                           |
-| `products.getImportErrorReport` | P44    | GET    | `/api/products/imports/{import_id}/error_report`       | READ      | VERIFIED 2026-10-10 (live)                                           |
-| `products.getNewProductReport`  | P45    | GET    | `/api/products/imports/{import_id}/new_product_report` | READ      | VERIFIED 2026-10-10 (live)                                           |
-| `catalog.hierarchies`           | H11    | GET    | `/api/hierarchies`                                     | READ      | VERIFIED 2026-10-10 (live)                                           |
-| `catalog.attributes`            | PM11   | GET    | `/api/products/attributes`                             | READ      | VERIFIED 2026-10-10 (live)                                           |
-| `catalog.valueLists`            | VL11   | GET    | `/api/values_lists`                                    | READ      | VERIFIED 2026-10-10 (live)                                           |
-| `catalog.additionalFields`      | AF01   | GET    | `/api/additional_fields`                               | READ      | VERIFIED 2026-10-10 (live)                                           |
-| `shipping.methods`              | SH21   | GET    | `/api/shipping/carriers`                               | READ      | VERIFIED 2026-10-10 (live)                                           |
-| `shipping.zones`                | SH11   | GET    | `/api/shipping/zones`                                  | READ      | VERIFIED 2026-10-10 (live)                                           |
-| `shipping.types`                | SH12   | GET    | `/api/shipping/types`                                  | READ      | VERIFIED 2026-10-10 (live)                                           |
-| `orders.list`                   | OR11   | GET    | `/api/orders`                                          | READ      | VERIFIED 2026-10-10 (live)                                           |
-| `orders.get`                    | OR12   | GET    | `/api/orders/{order_id}`                               | READ      | VERIFIED 2026-10-10 (live)                                           |
-| `orders.accept`                 | OR21   | PUT    | `/api/orders/{order_id}/accept`                        | **WRITE** | ASSUMPTION                                                           |
-| `orders.ship`                   | OR24   | PUT    | `/api/orders/{order_id}/ship`                          | **WRITE** | ASSUMPTION                                                           |
-| `orders.setTracking`            | OR23   | PUT    | `/api/orders/{order_id}/tracking`                      | **WRITE** | ASSUMPTION                                                           |
+| SDK method                              | Mirakl | Method | Path                                                            | Access    | Status                                                                    |
+| --------------------------------------- | ------ | ------ | --------------------------------------------------------------- | --------- | ------------------------------------------------------------------------- |
+| `account.get`                           | A01    | GET    | `/api/account`                                                  | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `offers.list`                           | OF21   | GET    | `/api/offers`                                                   | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `offers.get`                            | OF22   | GET    | `/api/offers/{offer_id}`                                        | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `offers.states`                         | OF61   | GET    | `/api/offers/states`                                            | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `offers.export`                         | OF51   | GET    | `/api/offers/export`                                            | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `offers.update`                         | OF24   | POST   | `/api/offers`                                                   | **WRITE** | VERIFIED 2026-10-10 (from live ops writes, 2026-09-16 .. 2026-10-09)      |
+| `offers.importFile`                     | OF01   | POST   | `/api/offers/imports`                                           | **WRITE** | ASSUMPTION                                                                |
+| `offers.getImport`                      | OF02   | GET    | `/api/offers/imports/{import_id}`                               | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `offers.getImportErrorReport`           | OF03   | GET    | `/api/offers/imports/{import_id}/error_report`                  | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `products.search`                       | P31    | GET    | `/api/products`                                                 | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `products.offers`                       | P11    | GET    | `/api/products/offers`                                          | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `products.importFile`                   | P41    | POST   | `/api/products/imports`                                         | **WRITE** | VERIFIED 2026-10-10 (from live ops writes, 2026-09-23 .. 2026-10-06)      |
+| `products.getImport`                    | P42    | GET    | `/api/products/imports/{import_id}`                             | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `products.getImportErrorReport`         | P44    | GET    | `/api/products/imports/{import_id}/error_report`                | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `products.getNewProductReport`          | P45    | GET    | `/api/products/imports/{import_id}/new_product_report`          | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `products.getTransformedFile`           | P46    | GET    | `/api/products/imports/{import_id}/transformed_file`            | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `products.getTransformationErrorReport` | P47    | GET    | `/api/products/imports/{import_id}/transformation_error_report` | READ      | VERIFIED 2026-10-10 (live; 404 case only, body from a 2026-09-23 capture) |
+| `catalog.hierarchies`                   | H11    | GET    | `/api/hierarchies`                                              | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `catalog.attributes`                    | PM11   | GET    | `/api/products/attributes`                                      | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `catalog.valueLists`                    | VL11   | GET    | `/api/values_lists`                                             | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `catalog.additionalFields`              | AF01   | GET    | `/api/additional_fields`                                        | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `shipping.methods`                      | SH21   | GET    | `/api/shipping/carriers`                                        | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `shipping.zones`                        | SH11   | GET    | `/api/shipping/zones`                                           | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `shipping.types`                        | SH12   | GET    | `/api/shipping/types`                                           | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `shipping.logisticClasses`              | SH31   | GET    | `/api/shipping/logistic_classes`                                | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `shipping.configuration`                | SH42   | GET    | `/api/shipping/configuration/shop`                              | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `shipping.charges`                      | SH52   | GET    | `/api/shipping/charges/shop`                                    | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `inbox.threads`                         | M11    | GET    | `/api/inbox/threads`                                            | READ      | VERIFIED 2026-10-10 (live); `page_token` name ASSUMPTION                  |
+| `platform.version`                      | V01    | GET    | `/api/version`                                                  | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `platform.configuration`                | PC01   | GET    | `/api/platform/configuration`                                   | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `platform.locales`                      | L01    | GET    | `/api/locales`                                                  | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `orders.list`                           | OR11   | GET    | `/api/orders`                                                   | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `orders.get`                            | OR12   | GET    | `/api/orders/{order_id}`                                        | READ      | VERIFIED 2026-10-10 (live)                                                |
+| `orders.accept`                         | OR21   | PUT    | `/api/orders/{order_id}/accept`                                 | **WRITE** | ASSUMPTION                                                                |
+| `orders.ship`                           | OR24   | PUT    | `/api/orders/{order_id}/ship`                                   | **WRITE** | ASSUMPTION                                                                |
+| `orders.setTracking`                    | OR23   | PUT    | `/api/orders/{order_id}/tracking`                               | **WRITE** | ASSUMPTION                                                                |
 
 The verb does not decide the classification — the effect on the account does. Today every
 READ here happens to be a GET, and the guard asserts that; if the operator ever exposes a
@@ -432,6 +444,31 @@ failure mode was seen on a 2026-10-05 batch: `error-message` =
 `The product does not exist` (the `product-id` / `product-id-type` pair matched nothing in the
 catalog). Any parser should therefore treat `error-message` as free text.
 
+### OF51 `GET /api/offers/export` — **VERIFIED 2026-10-10 (live)** (`client.offers.export`)
+
+The shop's offer book as one synchronous CSV (`200`, no paging). Documented query
+(**ASSUMPTION**, not exercised): `include_inactive_offers`, `last_request_date`,
+`channel_codes`, `shipping_zones`, `include_fields`. The async variant (OF52 `POST
+/api/offers/export/async`, with its status and download calls) exists upstream and is not
+wrapped. Delimiter is a **semicolon**; the header row is unquoted and every data field is
+double-quoted. The header observed
+live is the platform columns `offer-id`, `product-sku`, `min-shipping-price`,
+`min-shipping-price-additional`, `min-shipping-zone`, `min-shipping-type`, `price`,
+`total-price`, `price-additional-info`, `quantity`, `description`, `state-code`, `shop-id`,
+`shop-name`, `professional`, `premium`, `logistic-class`, `active`, `favorite-rank`,
+`channels`, `deleted`, `origin-price`, `discount-start-date`, `discount-end-date`,
+`available-start-date`, `available-end-date`, `discount-price`, `currency-iso-code`,
+`discount-ranges`, `leadtime-to-ship`, `allow-quote-requests`, `price-ranges`,
+`fulfillment-center-code`, `shop-sku`, `date-created`, `last-updated`,
+`ongoing-discount-campaigns`, `price-lock`, `manufacturer-warranty`, the 13 `ehf-amount-<prov>`
+columns, `pim` and `measurement-units`, followed by three columns **per shipping zone** for
+method `M`: `shipping-price[zone=<Z>,method=M]`, `delivery-time-earliest-days[zone=<Z>,method=M]`
+and `delivery-time-latest-days[zone=<Z>,method=M]` (13 zones). Those per-zone columns are why
+ops scripts use the export: `offers.list` (OF21) carries none of them. A default call returned
+22 data rows while OF21 listed 34 offers on the shop - consistent with the documented
+active-only default, which `include_inactive_offers=true` is meant to lift (that flag itself
+was not exercised). Parsing the CSV is left to the caller.
+
 ---
 
 ## 4. Products
@@ -494,9 +531,16 @@ echoes the rejected value: `Invalid query param format, expected 'a|x,b|y', foun
 Two references in one call (`UPC-A|a,UPC-A|b`) is accepted; unmatched references are simply
 absent (`{"products":[],"total_count":0}`, 200).
 
-### P11 `GET /api/products/offers` — **VERIFIED 2026-10-10 (live)**, not wrapped by the SDK
+### P11 `GET /api/products/offers` — **VERIFIED 2026-10-10 (live)** (`client.products.offers`)
 
-Query `product_ids=<product_sku>[,…]` plus `all_offers=true`. Envelope `{ "products": [...] }`
+Query `product_ids=<product_sku>[,…]` (or `product_references=TYPE|VALUE[,…]`; one of the two is
+required, each capped at 100 values) plus `all_offers=true` (default `false`: **active offers
+only** - a product whose only offer is inactive comes back with `offers: []`; verified with a
+`product_references` call, which returned the product with an empty `offers` array). Also
+documented (**ASSUMPTION**, not exercised): `offer_state_codes`, `channel_codes`,
+`all_channels`, `pricing_channel_code`, `shipping_zones`, `all_shipping_zones`, `sort`
+(`bestPrice` default, `bestEvaluation`). Not paged. Re-called through the SDK on 2026-10-10
+with 33 product ids at once (131 competing offers) - every offer parsed. Envelope `{ "products": [...] }`
 (**no** top-level `total_count`); each product carries `category_code`, `category_label`,
 `product_brand`, `product_description`, `product_media` (`{media_url, type}`),
 `product_references[]`, `product_sku`, `product_title`, a per-product `total_count` and
@@ -507,7 +551,9 @@ Query `product_ids=<product_sku>[,…]` plus `all_offers=true`. Envelope `{ "pro
 OF21's object), `min_quantity_alert`, `offer_additional_fields`, `inactivity_reasons`,
 `channels`, `currency_iso_code`, `msrp`, `discount`, `description`, `price_additional_info`,
 `allow_quote_requests`, `offer_id`. This is the competitor-visibility read (it returns other
-sellers' offers on the same product); it is not exposed through the SDK yet.
+sellers' offers on the same product, our own included). `shop_id`, `shop_grade`, `msrp` and
+`logistic_class` were `null` on every one of the 131 offers; `shop_name` is the seller's display
+name, which is the only way to tell whose offer is whose.
 
 ### P41 `POST /api/products/imports` — **WRITE** — **VERIFIED 2026-10-10 (from live ops writes, 2026-09-23 .. 2026-10-06)**
 
@@ -610,11 +656,12 @@ matches `has_new_product_report: false` on P42, so a caller should check the fla
 shape of the report itself, when one exists, is still **ASSUMPTION** (no import on this shop
 has produced one).
 
-### Two further product-import reads the SDK does not wrap — **VERIFIED 2026-10-10 (live)**
+### Two further product-import reads — **VERIFIED 2026-10-10 (live)** (`client.products.getTransformedFile`, `getTransformationErrorReport`)
 
 - `GET /api/products/imports/{import_id}/transformed_file` (P46): the file as Best Buy
   transformed it - **semicolon**-delimited and quoted, the submitted columns only (no
-  `line_number` / `errors`).
+  `line_number` / `errors`). Re-called live through the SDK on 2026-10-10 for an import whose
+  status carried `has_transformed_file: true`: `200`, text body.
 - `GET /api/products/imports/{import_id}/transformation_error_report` (P47): answers `404
 {"message":"Resource not available : transform_errors on import id …"}` when
   `has_transformation_error_report` is false. When it is true (a 2026-09-23 capture of an
@@ -840,6 +887,71 @@ Envelope key is `shipping_types`:
 **Best Buy Canada offers exactly one shipping method to this seller: `M` (Ground Regular),
 and it requires tracking before a shipment can be confirmed.** `delivery_by_operator` is
 documented but was not returned.
+
+Three more shipping reads, added to the SDK for the ops scripts - all `VERIFIED 2026-10-10
+(live)`, all answering `200`:
+
+### SH31 `GET /api/shipping/logistic_classes` — **VERIFIED 2026-10-10 (live)**
+
+Envelope key `logistic_classes`; six rows `{ code, label, description }`: `LETTER`, `SMALL`,
+`MED`, `LARGE`, `HEAVY`, `LTL`. These are the codes an OF24 line's `logistic_class` takes.
+
+### SH42 `GET /api/shipping/configuration/shop` — **VERIFIED 2026-10-10 (live)**
+
+A bare object (no envelope), the shop's delivery promise as the operator holds it:
+
+```json
+{
+  "shop_id": "1234",
+  "last_updated_date": "2026-01-01T00:00:00.000Z",
+  "lead_time_to_ship": { "default_value": 2, "shop_value": 1 },
+  "delivery_times": [
+    {
+      "shipping_type_code": "M",
+      "shipping_zone_code": "ZoneA",
+      "set_by": "OPERATOR",
+      "delivery_time": { "earliest_days": 1, "latest_days": 2 }
+    }
+  ],
+  "order_cut_off_times": [
+    {
+      "shipping_type_code": "M",
+      "cut_off_time": "17:00:00Z",
+      "is_required": false,
+      "set_by": "OPERATOR"
+    }
+  ],
+  "order_free_shipping": false,
+  "shipping_paid_by_operator": false
+}
+```
+
+Note `shop_id` is a **string** here, while A01 and SH52 carry it as a number. 13
+`delivery_times` rows (one per zone for method `M`); `set_by` is `OPERATOR` or `SHOP` (both
+seen, depending on who last edited the promise - all `SHOP` in the 2026-10-10 call, all
+`OPERATOR` in an earlier ops capture). `lead_time_to_ship.shop_value` is the shop-level lead
+time (A01's own `shipping.lead_time_to_ship` is null on this shop, so SH42 is the only place it
+is readable); whether an offer's own `leadtime_to_ship` overrides it is **ASSUMPTION**
+(Mirakl's documented behaviour, not tested here). Read-only: the SDK has no write for any of it.
+
+### SH52 `GET /api/shipping/charges/shop` — **VERIFIED 2026-10-10 (live)**
+
+A bare object `{ shop_id (number), currency_iso_code, last_updated_date, configuration[] }`.
+`configuration` has one cell per zone x method x logistic class (78 = 13 x 1 x 6). Each cell is
+`{ shipping_zone_code, shipping_method_code, logistic_class_code, overridden_by_shop,
+prices: { type, initial_price, additional_price, free_shipping_threshold, ranges } }`. Every
+cell seen was `type: "FREE_SHIPPING"` with `initial_price`, `additional_price` and
+`free_shipping_threshold` all `null` and `ranges: []`. Mirakl documents two more `type` values,
+`FIXED_PRICE` and `ORDER_RANGE`, with `ranges` populated for the latter - **ASSUMPTION**, never
+seen on this shop; the SDK types `type` as an open string and `ranges` as loose objects.
+`overridden_by_shop` was `true` on all 78 cells.
+
+Also probed and **not** wrapped: `GET /api/shipping/fees` and `/api/shipping/rates` answer `400
+{"message":"Param 'shipping_zone_code' is required"}` / `'offers' is required` without their
+parameters, and `403` with `shipping_zone_code` + `offers` for this key; `GET /api/shops`
+(S20) answers `403 Forbidden`; `GET /api/shops/documents` (S30) answers `200
+{"shop_documents":[],"total_count":0}` (an empty list, shape of a populated one unknown).
+Neither of the 403s was explored further.
 
 ---
 
@@ -1096,12 +1208,38 @@ Body `{ "carrier_code": "...", "carrier_name": "...", "carrier_url": "...",
 "tracking_number": "..." }`. Expected `204`. **ASSUMPTION**: `carrier_code` must come from
 the carrier list; supplying `carrier_name` free-form may be rejected when a code exists.
 
+### M11 `GET /api/inbox/threads` — **VERIFIED 2026-10-10 (live)** (`client.inbox.threads`)
+
+Read-only message threads (the SDK has no reply call; Mirakl's reply endpoints are writes).
+Envelope `{ "data": [...] }` with Mirakl's **seek pagination**: `next_page_token` /
+`previous_page_token` appear only when there is another page (neither seen: the shop has a
+single thread). Query: `entity_type` (`MMP_ORDER`, `MMP_OFFER`, `MPS_ORDER`, `MPS_SERVICE`,
+`SELLER_OPERATOR`), `entity_id` (comma list; needs `entity_type`), `updated_since`,
+`with_messages` (last 100 messages per thread), `channel_codes`, `limit` (default 50). The
+`limit` and `with_messages` parameters were accepted live; the **name of the page-token
+parameter (`page_token`) is ASSUMPTION** - it is Mirakl's generic seek-pagination spelling and
+was never exercised because no second page exists.
+
+Thread keys: `id`, `topic` (`{ type: "FREE_TEXT", value }`), `entities[]` (`{ id, label, type:
+"MMP_ORDER" }`), `authorized_participants[]` and `current_participants[]` (`{ id,
+display_name, type }` with `type` in `CUSTOMER`, `OPERATOR`, `SHOP`; **`id` is absent on the
+`OPERATOR` participant**), `date_created`, `date_updated`, `metadata` (`last_message_date`,
+`last_sender` `{ display_name, organization_details, type: "SHOP_USER" }`,
+`shop_reply_needed_since` - null when nothing is owed, `total_count`). With
+`with_messages=true` each thread also carries `messages[]`: `{ id, body, date_created, from
+{ display_name, organization_details, type }, to[{ display_name, id, type }] }` (5 messages
+on the one thread). `body` is customer-written text. `GET /api/inbox/threads/topics`, which an
+ops script tried, is not an endpoint (the path is read as thread id `topics`).
+
 ---
 
 ## 8. Platform configuration (context, read-only)
 
-Two further read-only endpoints were probed on 2026-09-11 and are worth recording even though
-the SDK does not wrap them yet.
+Three read-only endpoints were probed on 2026-09-11 and re-called live on 2026-10-10 (all
+`200`, shapes unchanged); the SDK now wraps them as `client.platform.version()` (V01),
+`client.platform.configuration()` (PC01) and `client.platform.locales()` (L01).
+`GET /api/version` (V01) returns `{ "version": "3.1306" }` - the Mirakl platform version.
+PC01 and L01 are described below.
 
 `GET /api/platform/configuration` (PC01) reports, among others: `platform_name` "Best Buy
 Marketplace", `tenant_name` `bby-prod`, `timezone` `America/Vancouver`, `multi_currency`
@@ -1168,7 +1306,7 @@ once a real limit is observed. Do not poll the reference endpoints in a loop.
 **Done on 2026-10-10 (live), all READ-only, via direct GETs and via the SDK's own client**:
 A01; OF21 (pages, `sku`, `product_id`, `offer_state_codes` filters, past-the-end offset, `max`
 over 100); OF22 (+ 404); OF61; OF02 (two batches + 404); OF03; P31 (percent-encoded pipe,
-multi-reference, missing-prefix 400); P11 (not wrapped); P42 (+ 404); P44; P45 (404 when
+multi-reference, missing-prefix 400); P42 (+ 404); P44; P45 (404 when
 absent); H11; PM11 (CAT_1084); VL11 (`code` filter); AF01 (`entities=OFFER` and unfiltered);
 SH21, SH11, SH12; OR11 (every query parameter, paging, an invalid state, past-the-end offset);
 OR12 (+ 404); a bad-key 401. Every captured payload parses through the SDK's schemas; the
@@ -1177,6 +1315,15 @@ shapes that changed the SDK are orders (OR11 / OR12), the product-import status 
 sanitized into `packages/sdk/test/fixtures/` (`orders-list.json`, `order.json`,
 `product-import-status.json`, `products-match.json`, plus the earlier ones) and are parsed by
 `packages/sdk/test/fixtures.test.ts`.
+
+A second 2026-10-10 pass covered the reads the ops scripts had been making with raw `fetch`,
+now wrapped by the SDK (about 36 read calls, spaced >= 3.3 s, no 429): P11 (by product sku
+with `all_offers=true`, by `UPC-A` reference, and 33 product ids at once), OF51, SH31, SH42,
+SH52, M11 (plain, and `limit=1&with_messages=true`), V01, PC01, L01, P46 and P47 (404).
+Shapes only were recorded; the sanitized fixtures `product-offers.json`,
+`shipping-configuration.json`, `shipping-charges.json` and `inbox-threads.json` carry
+placeholder values and are parsed by `packages/sdk/test/ops-reads.test.ts`. That pass changed
+the SDK once: the M11 `OPERATOR` participant has no `id`.
 
 Write evidence, also 2026-10-10 and with no new call: the OF24 batches of 2026-09-16 ..
 2026-10-09 and the P41 imports of 2026-09-23 .. 2026-10-06, taken from the ops scripts' own
@@ -1197,8 +1344,15 @@ Still unverified, in the order it will matter:
    non-null `order_refunds` / `order_taxes`.
 3. **The P45 new-product report body** — no import on this shop has produced one.
 4. **403, 429 and 5xx behaviour**, and the real rate limit.
-5. **The `transformation_error_report` and `transformed_file` (P46 / P47) reads** are
-   documented above but are not wrapped by the SDK and were fetched from earlier captures
-   rather than re-called.
-6. **The `GET /api/platform/configuration` (PC01) and `GET /api/locales` (L01) reads** are
-   recorded in section 8 from 2026-09-11 and were not re-called; the SDK does not wrap them.
+5. **The ops-script reads that stay unwrapped.** `GET /api/shops` (S20) answers `403` and
+   `GET /api/shipping/fees` / `rates` answer `403` / `400` for this key (see SH52); `GET
+/api/shops/documents` (S30) answered an empty list. The async offer export (OF52) and the
+   other inbox endpoints (thread detail M10, message post, attachments) are documented
+   upstream and untouched. The Best Buy storefront endpoints some ops scripts call
+   (`/api/v2/json/search`, `/api/v2/json/product/<sku>`, `/api/MoreBuyingOptions`,
+   `/api/ProductRealtime` on bestbuy.ca) are the public website API, not part of this seller
+   API, and are out of scope for this SDK.
+6. **The unexercised query parameters** of P11 (`offer_state_codes`, `channel_codes`,
+   `shipping_zones`, `sort`), OF51 (`include_inactive_offers`, `last_request_date`) and M11
+   (`entity_type`, `entity_id`, `updated_since`, `page_token`) are mapped from Mirakl's
+   reference and covered by mocked tests only.

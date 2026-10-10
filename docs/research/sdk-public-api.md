@@ -48,6 +48,8 @@ interface BestBuyClient {
   readonly catalog: CatalogApi;
   readonly shipping: ShippingApi;
   readonly orders: OrdersApi;
+  readonly inbox: InboxApi;
+  readonly platform: PlatformApi;
 }
 ```
 
@@ -61,6 +63,8 @@ interface BestBuyClient {
 - `listAll(params?, options?): AsyncIterableIterator<Offer>` — READ (OF21, paged)
 - `get(offerId, options?): Promise<Offer>` — READ (OF22)
 - `states(options?): Promise<OfferState[]>` — READ (OF61)
+- `export(params?, options?): Promise<string>` — READ (OF51, CSV; the shop's offer book incl.
+  the per-zone shipping columns; active offers only unless `includeInactiveOffers`)
 - `update(input, options?): Promise<ImportTicket>` — **WRITE** (OF24, async). Each line is the
   complete desired state of the offer (a full replace, not a patch); a `COMPLETE` import can
   still have every line in error, so read the `getImport` counters and `getImportErrorReport`
@@ -71,12 +75,19 @@ interface BestBuyClient {
 ### `products`
 
 - `search(params, options?): Promise<Page<Product>>` — READ (P31)
+- `offers(params, options?): Promise<ProductWithOffers[]>` — READ (P11). Every seller's offers on
+  the given `productIds` / `references` (at most 100 each, not paged); `allOffers: true` to
+  include inactive offers. The competitor-visibility read
 - `importFile(input, options?): Promise<ImportTicket>` — **WRITE** (P41, async). Verified with a
   comma-delimited operator-layout CSV and `operatorFormat: true`; `COMPLETE` is not success,
   read `integration_details` and the reports
 - `getImport(importId, options?): Promise<ProductImportStatus>` — READ (P42)
 - `getImportErrorReport(importId, options?): Promise<string>` — READ (P44, CSV)
 - `getNewProductReport(importId, options?): Promise<string>` — READ (P45, CSV)
+- `getTransformedFile(importId, options?): Promise<string>` — READ (P46, CSV; 404 unless
+  `has_transformed_file`)
+- `getTransformationErrorReport(importId, options?): Promise<string>` — READ (P47, CSV; 404
+  unless `has_transformation_error_report`)
 
 ### `catalog`
 
@@ -90,6 +101,22 @@ interface BestBuyClient {
 - `methods(options?): Promise<ShippingCarrier[]>` — READ (SH21, carriers)
 - `zones(options?): Promise<ShippingZone[]>` — READ (SH11)
 - `types(options?): Promise<ShippingType[]>` — READ (SH12, shipping methods)
+- `logisticClasses(options?): Promise<LogisticClass[]>` — READ (SH31)
+- `configuration(options?): Promise<ShippingConfiguration>` — READ (SH42; lead time, delivery
+  times, cut-offs)
+- `charges(options?): Promise<ShippingCharges>` — READ (SH52; the shipping-charge grid)
+
+### `inbox`
+
+- `threads(params?, options?): Promise<InboxThreadList>` — READ (M11). Seek-paginated
+  (`next_page_token`); `withMessages` includes customer-written message bodies. No reply method
+  exists on purpose
+
+### `platform`
+
+- `version(options?): Promise<string>` — READ (V01)
+- `configuration(options?): Promise<PlatformConfiguration>` — READ (PC01)
+- `locales(options?): Promise<PlatformLocale[]>` — READ (L01)
 
 ### `orders`
 
