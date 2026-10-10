@@ -1,0 +1,18 @@
+{
+  "date_created": "2026-01-01T00:00:00Z",
+  "has_error_report": false,
+  "has_new_product_report": false,
+  "has_transformation_error_report": true,
+  "has_transformed_file": true,
+  "import_id": 1000003,
+  "import_status": "SENT",
+  "shop_id": 1234,
+  "transform_lines_in_error": 1,
+  "transform_lines_in_success": 1,
+  "transform_lines_read": 1,
+  "transform_lines_with_warning": 0,
+  "update_options": {
+    "allow_locked_values_override": false,
+    "lock_mode": "NONE"
+  }
+}

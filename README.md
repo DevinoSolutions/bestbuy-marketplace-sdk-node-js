@@ -8,12 +8,16 @@ catalog metadata, shipping reference data and orders.
 - Runtime: Node >= 22.12, ESM only
 - Runtime dependencies: `zod` (that is the whole list)
 
-> **Reads are live-verified; writes are not.** On 2026-09-11 every read endpoint was called
-> against a real Best Buy Canada seller account and its response shape recorded in
-> [`docs/research/bestbuy-api-contracts.md`](docs/research/bestbuy-api-contracts.md). Every
-> mutating endpoint is still marked **ASSUMPTION** there, derived from Mirakl's standard
-> seller API — the operator customizes paths, field names and codes, so treat the first real
-> write as a verification step, not as a regression test.
+> **Reads are live-verified; writes are verified only where the contracts doc says so.** Every
+> read endpoint was called against a real Best Buy Canada seller account and its response
+> shape recorded in
+> [`docs/research/bestbuy-api-contracts.md`](docs/research/bestbuy-api-contracts.md). Of the
+> mutating endpoints, the offer batch (`offers.update`, OF24) and the product import
+> (`products.importFile`, P41) are marked verified from real, owner-authorized ops writes; the
+> offer file import (OF01) and the order writes (accept, ship, tracking) are still marked
+> **ASSUMPTION**, derived from Mirakl's standard seller API — the operator customizes paths,
+> field names and codes, so treat the first real use of one of those as a verification step,
+> not as a regression test.
 
 ## Install
 
@@ -167,7 +171,7 @@ packages/sdk/          @devino/bestbuy-marketplace-sdk
   test/                mocked suites
   test/fixtures/       sanitized live payloads (2026-09-11) used by the mocked suites
   test/live/           opt-in READ-ONLY live suite
-docs/research/         API contracts (reads VERIFIED, writes ASSUMPTION) + public API contract
+docs/research/         API contracts (reads, OF24 and P41 VERIFIED) + public API contract
 docs/adr/              architecture decisions
 scripts/               secret scan, read-only guard, export verification
 ```

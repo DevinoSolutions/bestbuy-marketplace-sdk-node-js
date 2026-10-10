@@ -61,7 +61,9 @@ interface BestBuyClient {
 - `listAll(params?, options?): AsyncIterableIterator<Offer>` — READ (OF21, paged)
 - `get(offerId, options?): Promise<Offer>` — READ (OF22)
 - `states(options?): Promise<OfferState[]>` — READ (OF61)
-- `update(input, options?): Promise<ImportTicket>` — **WRITE** (OF24, async)
+- `update(input, options?): Promise<ImportTicket>` — **WRITE** (OF24, async). Each line is the
+  complete desired state of the offer (a full replace, not a patch); a `COMPLETE` import can
+  still have every line in error, so read the `getImport` counters and `getImportErrorReport`
 - `importFile(input, options?): Promise<ImportTicket>` — **WRITE** (OF01, async)
 - `getImport(importId, options?): Promise<OfferImportStatus>` — READ (OF02)
 - `getImportErrorReport(importId, options?): Promise<string>` — READ (OF03, CSV)
@@ -69,7 +71,9 @@ interface BestBuyClient {
 ### `products`
 
 - `search(params, options?): Promise<Page<Product>>` — READ (P31)
-- `importFile(input, options?): Promise<ImportTicket>` — **WRITE** (P41, async)
+- `importFile(input, options?): Promise<ImportTicket>` — **WRITE** (P41, async). Verified with a
+  comma-delimited operator-layout CSV and `operatorFormat: true`; `COMPLETE` is not success,
+  read `integration_details` and the reports
 - `getImport(importId, options?): Promise<ProductImportStatus>` — READ (P42)
 - `getImportErrorReport(importId, options?): Promise<string>` — READ (P44, CSV)
 - `getNewProductReport(importId, options?): Promise<string>` — READ (P45, CSV)

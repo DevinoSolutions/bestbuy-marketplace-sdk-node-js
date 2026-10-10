@@ -1,0 +1,15 @@
+{
+  "date_created": "2026-01-01T00:00:00Z",
+  "has_error_report": false,
+  "import_id": 5151,
+  "lines_in_error": 0,
+  "lines_in_pending": 0,
+  "lines_in_success": 1,
+  "lines_read": 1,
+  "mode": "NORMAL",
+  "offer_deleted": 0,
+  "offer_inserted": 1,
+  "offer_updated": 0,
+  "status": "COMPLETE",
+  "type": "MIRAKL"
+}

@@ -177,8 +177,16 @@ export interface AccountApi {
 // Offers (OF01, OF02, OF03, OF21, OF22, OF24, OF61)
 // ---------------------------------------------------------------------------
 
-/** How a product is identified when creating or updating an offer. */
-export type ProductIdType = "UPC" | "EAN" | "SKU" | "SHOP_SKU";
+/**
+ * How a product is identified when creating or updating an offer.
+ *
+ * VERIFIED 2026-10-10 (from live ops writes): `SKU` (the Best Buy product sku, i.e. the
+ * `product_sku` P31 returns) and `UPC-A` (the operator's UPC reference type, the one P31
+ * matches on) were each accepted on offer lines that imported with `lines_in_success` equal
+ * to `lines_read`. `UPC`, `EAN` and `SHOP_SKU` are Mirakl's documented names and have no
+ * successful live write behind them.
+ */
+export type ProductIdType = "UPC-A" | "UPC" | "EAN" | "SKU" | "SHOP_SKU";
 
 /**
  * A time-boxed promotional price as it comes back on a READ.
@@ -328,7 +336,10 @@ export interface OfferUpdateEntry {
   price: number;
   quantity: number;
   state_code: string;
-  /** Defaults to `update` upstream; `delete` removes the offer. */
+  /**
+   * Defaults to `update` upstream (a create-or-update upsert; every verified live write sent
+   * it); `delete` removes the offer and has no verified outcome here.
+   */
   update_delete?: "update" | "delete";
   /**
    * Operator logistic class code, e.g. `SMALL`. The accepted codes come from
@@ -399,6 +410,13 @@ export interface OfferImportStatus {
   lines_in_success?: number;
   lines_in_error?: number;
   lines_in_pending?: number;
+  /**
+   * `offer_inserted` / `offer_updated` / `offer_deleted` count what actually changed. A line
+   * can be in `lines_in_success` and still move none of them: a batch that only asked for a
+   * per-offer `leadtime_to_ship` below the operator-locked shop default imported clean with
+   * `offer_updated` 0 and the offers kept the default. VERIFIED 2026-10-10 (from live ops
+   * writes).
+   */
   offer_inserted?: number;
   offer_updated?: number;
   offer_deleted?: number;
@@ -471,7 +489,12 @@ export interface Product {
 export interface ProductImportFileInput {
   file: Blob | Uint8Array;
   fileName: string;
-  /** Sends `operator_format`; set when the file uses the operator's own column layout. */
+  /**
+   * Sends `operator_format` (as the string `"true"`/`"false"`). VERIFIED 2026-10-10: every
+   * product import that reached the catalog stage was sent with `true`, with a comma-delimited
+   * quoted UTF-8 CSV in the operator's own column layout (`BBYCat`, `shop_sku`, then
+   * `_<Attribute>_<id>_<category>_EN` columns from PM11).
+   */
   operatorFormat?: boolean;
 }
 
