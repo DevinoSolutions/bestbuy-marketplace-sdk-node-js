@@ -16,8 +16,9 @@ Non-negotiables (duplicated here so no tool misses them):
 5. MCP write tools, when that package lands, stay gated behind `BESTBUY_MCP_ALLOW_WRITES=true`
    plus a preview→apply flow.
 6. `docs/research/bestbuy-api-contracts.md` marks each shape `VERIFIED <date>` or
-   **ASSUMPTION**. The read surface was verified live on 2026-09-11; every write is still an
-   assumption. Do not present guessed field names as facts.
+   **ASSUMPTION**. The read surface was verified live (2026-09-11, again 2026-10-10); OF24 and
+   P41 are verified from the owner's logged live writes. OF01 and the order writes (OR21,
+   OR23, OR24) are still assumptions. Do not present guessed field names as facts.
 
 Before claiming done: `npm run format:check && npm run typecheck && npm run lint &&
 npm run build && npm test && npm run verify:exports && npm run check:secrets &&
