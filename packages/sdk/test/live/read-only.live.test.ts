@@ -95,6 +95,62 @@ describe.skipIf(!liveEnabled)("live (read-only): Best Buy Canada Marketplace", (
     for (const field of fields) expect(typeof field.code).toBe("string");
   });
 
+  it("reads the competing offers on the first offer's product (P11)", async () => {
+    const client = makeLiveClient();
+    const offer = (await client.offers.list({ max: 1 })).items[0];
+    if (offer?.product_sku === undefined) return;
+    await pace();
+    const products = await client.products.offers({
+      productIds: [offer.product_sku],
+      allOffers: true,
+    });
+    expect(products.length).toBeGreaterThan(0);
+    for (const product of products) {
+      expect(typeof product.product_sku).toBe("string");
+      expect(Array.isArray(product.offers)).toBe(true);
+      for (const competing of product.offers) expect(typeof competing.price).toBe("number");
+    }
+  });
+
+  it("reads the offer export as CSV (OF51)", async () => {
+    const csv = await makeLiveClient().offers.export();
+    const header = csv.split(/\r?\n/)[0] ?? "";
+    expect(header).toContain("offer-id");
+    expect(header).toContain("product-sku");
+  });
+
+  it("reads the shop shipping configuration, logistic classes and charges", async () => {
+    const client = makeLiveClient();
+    const config = await client.shipping.configuration();
+    expect(typeof config.lead_time_to_ship.shop_value).toBe("number");
+    expect(config.delivery_times.length).toBeGreaterThan(0);
+    await pace();
+    const classes = await client.shipping.logisticClasses();
+    expect(classes.length).toBeGreaterThan(0);
+    await pace();
+    const charges = await client.shipping.charges();
+    expect(charges.configuration.length).toBeGreaterThan(0);
+  });
+
+  it("reads one inbox thread page (shape only, no content is asserted)", async () => {
+    const list = await makeLiveClient().inbox.threads({ limit: 1, withMessages: true });
+    expect(Array.isArray(list.data)).toBe(true);
+    for (const thread of list.data) {
+      expect(typeof thread.id).toBe("string");
+      for (const message of thread.messages ?? []) expect(typeof message.id).toBe("string");
+    }
+  });
+
+  it("reads the platform version, configuration and locales", async () => {
+    const client = makeLiveClient();
+    expect(typeof (await client.platform.version())).toBe("string");
+    await pace();
+    expect(typeof (await client.platform.configuration()).platform_name).toBe("string");
+    await pace();
+    const locales = await client.platform.locales();
+    expect(locales.some((locale) => locale.platform_default === true)).toBe(true);
+  });
+
   it("reads the shipping reference data", async () => {
     const client = makeLiveClient();
     const carriers = await client.shipping.methods();

@@ -174,7 +174,7 @@ export interface AccountApi {
 }
 
 // ---------------------------------------------------------------------------
-// Offers (OF01, OF02, OF03, OF21, OF22, OF24, OF61)
+// Offers (OF01, OF02, OF03, OF21, OF22, OF24, OF51, OF61)
 // ---------------------------------------------------------------------------
 
 /**
@@ -425,7 +425,18 @@ export interface OfferImportStatus {
   date_process_ended?: string;
 }
 
-/** Offer reads and writes. Only `list`, `get` and `getImport*` are safe against a live shop. */
+/** Filters for `offers.export`. */
+export interface OfferExportParams {
+  /** `true` also exports inactive offers; upstream defaults to active offers only. */
+  includeInactiveOffers?: boolean;
+  /**
+   * ISO-8601 timestamp: export only offers changed since the previous call's date (Mirakl's
+   * `last_request_date`). **ASSUMPTION**: the delta semantics are documented, not observed.
+   */
+  lastRequestDate?: string;
+}
+
+/** Offer reads and writes. Only the READ methods are safe against a live shop. */
 export interface OffersApi {
   /** `OF21` — `GET /api/offers`. */
   list(params?: OfferListParams, options?: RequestOptions): Promise<Page<Offer>>;
@@ -435,6 +446,12 @@ export interface OffersApi {
   get(offerId: string | number, options?: RequestOptions): Promise<Offer>;
   /** `OF61` — `GET /api/offers/states`: the operator's offer conditions. */
   states(options?: RequestOptions): Promise<OfferState[]>;
+  /**
+   * `OF51` — `GET /api/offers/export`. The shop's whole offer book as raw CSV (semicolon-
+   * delimited, quoted), including the per-zone `shipping-price[zone=..,method=..]` columns
+   * that `offers.list` does not carry. Synchronous; mind the size on a large catalog.
+   */
+  export(params?: OfferExportParams, options?: RequestOptions): Promise<string>;
   /** `OF24` — `POST /api/offers`. **WRITE**, asynchronous. */
   update(input: OfferUpdateInput, options?: RequestOptions): Promise<ImportTicket>;
   /** `OF01` — `POST /api/offers/imports`. **WRITE**, asynchronous. */
@@ -446,7 +463,7 @@ export interface OffersApi {
 }
 
 // ---------------------------------------------------------------------------
-// Products (P31, P41, P42, P44, P45)
+// Products (P11, P31, P41, P42, P44, P45, P46, P47)
 // ---------------------------------------------------------------------------
 
 /**
@@ -533,10 +550,86 @@ export interface ProductImportStatus {
   update_options?: { allow_locked_values_override?: boolean; lock_mode?: string } | null;
 }
 
+/** Filters for `products.offers`. At least one of `productIds` / `references` is required. */
+export interface ProductOffersParams {
+  /** Best Buy product SKUs (the `product_sku` P31 returns). Mirakl caps this at 100. */
+  productIds?: readonly string[];
+  /** `TYPE|VALUE` references, as in `products.search`. Mirakl caps this at 100. */
+  references?: readonly ProductSearchReference[];
+  /**
+   * `false` (the default upstream) returns only active offers; `true` returns every offer,
+   * including inactive ones. VERIFIED 2026-10-10 that a product whose only offer is inactive
+   * comes back with `offers: []` unless this is `true`.
+   */
+  allOffers?: boolean;
+  /** Offer condition codes to include. */
+  offerStateCodes?: readonly string[];
+}
+
+/**
+ * One offer on a catalog product, in the public marketplace view P11 returns - including
+ * other sellers' offers. Unlike {@link Offer} it has no `shop_sku`, and on Best Buy `shop_id`,
+ * `shop_grade`, `logistic_class` and `msrp` are null (VERIFIED 2026-10-10).
+ */
+export interface ProductOffer {
+  offer_id: number;
+  active?: boolean;
+  all_prices?: OfferPricing[];
+  applicable_pricing?: OfferPricing | null;
+  allow_quote_requests?: boolean;
+  channels?: string[];
+  currency_iso_code?: string;
+  description?: string | null;
+  discount?: OfferDiscount | null;
+  inactivity_reasons?: string[];
+  is_professional?: boolean;
+  leadtime_to_ship?: number | null;
+  logistic_class?: OfferLogisticClass | null;
+  min_quantity_alert?: number | null;
+  min_shipping_price?: number | null;
+  min_shipping_price_additional?: number | null;
+  min_shipping_type?: string | null;
+  min_shipping_zone?: string | null;
+  msrp?: number | null;
+  nb_evaluation?: number | null;
+  offer_additional_fields?: AdditionalField[];
+  premium?: boolean;
+  price: number;
+  price_additional_info?: string | null;
+  quantity?: number;
+  /** ISO-8601 timestamp. */
+  shipping_deadline?: string | null;
+  shop_grade?: number | null;
+  shop_id?: number | null;
+  shop_name?: string;
+  state_code?: string;
+  total_price?: number;
+}
+
+/** A catalog product with the offers sellers have placed on it (P11). */
+export interface ProductWithOffers {
+  product_sku: string;
+  product_title: string;
+  product_brand?: string | null;
+  product_description?: string | null;
+  product_media?: { media_url: string; type?: string } | null;
+  product_references: ProductReference[];
+  category_code: string;
+  category_label: string;
+  /** Number of offers on this product, not the number of products in the response. */
+  total_count: number;
+  offers: ProductOffer[];
+}
+
 /** Product catalog lookups and imports. */
 export interface ProductsApi {
   /** `P31` — `GET /api/products?product_references=TYPE|VALUE`. */
   search(params: ProductSearchParams, options?: RequestOptions): Promise<Page<Product>>;
+  /**
+   * `P11` — `GET /api/products/offers`. Every seller's offers on the given products (the
+   * competitor-visibility read). Not paged: the envelope carries no `total_count`.
+   */
+  offers(params: ProductOffersParams, options?: RequestOptions): Promise<ProductWithOffers[]>;
   /** `P41` — `POST /api/products/imports`. **WRITE**, asynchronous. */
   importFile(input: ProductImportFileInput, options?: RequestOptions): Promise<ImportTicket>;
   /** `P42` — `GET /api/products/imports/{import_id}`. */
@@ -545,6 +638,20 @@ export interface ProductsApi {
   getImportErrorReport(importId: string | number, options?: RequestOptions): Promise<string>;
   /** `P45` — `GET /api/products/imports/{import_id}/new_product_report`. Returns raw CSV. */
   getNewProductReport(importId: string | number, options?: RequestOptions): Promise<string>;
+  /**
+   * `P46` — `GET /api/products/imports/{import_id}/transformed_file`. The file as Best Buy
+   * transformed it: raw CSV, semicolon-delimited and quoted. Check
+   * `ProductImportStatus.has_transformed_file` first; an absent file answers `404`.
+   */
+  getTransformedFile(importId: string | number, options?: RequestOptions): Promise<string>;
+  /**
+   * `P47` — `GET /api/products/imports/{import_id}/transformation_error_report`. Raw CSV.
+   * Answers `404` unless `ProductImportStatus.has_transformation_error_report` is true.
+   */
+  getTransformationErrorReport(
+    importId: string | number,
+    options?: RequestOptions,
+  ): Promise<string>;
 }
 
 // ---------------------------------------------------------------------------
@@ -676,7 +783,7 @@ export interface CatalogApi {
 }
 
 // ---------------------------------------------------------------------------
-// Shipping (SH11, SH12, SH21)
+// Shipping (SH11, SH12, SH21, SH31, SH42, SH52)
 // ---------------------------------------------------------------------------
 
 /** A carrier the operator accepts for tracking. */
@@ -711,6 +818,73 @@ export interface ShippingType {
   mandatory_tracking?: boolean;
 }
 
+/** A logistic (package-size) class the operator defines. */
+export interface LogisticClass {
+  code: string;
+  label?: string;
+  description?: string;
+}
+
+/** Delivery window for one zone/method pair. */
+export interface ShippingDeliveryTime {
+  shipping_type_code: string;
+  shipping_zone_code: string;
+  /** Seen: `OPERATOR`. */
+  set_by?: string;
+  delivery_time?: { earliest_days?: number | null; latest_days?: number | null } | null;
+}
+
+/** Order cut-off for one shipping method. */
+export interface ShippingCutOffTime {
+  shipping_type_code: string;
+  /** UTC time of day, e.g. `17:00:00Z`. */
+  cut_off_time?: string | null;
+  is_required?: boolean;
+  set_by?: string;
+}
+
+/**
+ * The shop's shipping configuration (SH42), VERIFIED 2026-10-10 (live). The same
+ * `lead_time_to_ship.shop_value` is what the Best Buy seller portal edits; the SDK has no
+ * write for it.
+ */
+export interface ShippingConfiguration {
+  /** A string here, though A01 / SH52 carry the shop id as a number. */
+  shop_id: string;
+  /** ISO-8601 timestamp. */
+  last_updated_date?: string;
+  lead_time_to_ship: { default_value?: number | null; shop_value?: number | null };
+  delivery_times: ShippingDeliveryTime[];
+  order_cut_off_times: ShippingCutOffTime[];
+  order_free_shipping: boolean;
+  shipping_paid_by_operator: boolean;
+}
+
+/** One zone / method / logistic-class cell of the operator's shipping-charge grid. */
+export interface ShippingChargeCell {
+  shipping_zone_code: string;
+  shipping_method_code: string;
+  logistic_class_code: string;
+  overridden_by_shop?: boolean;
+  prices: {
+    /** Seen live: `FREE_SHIPPING`. Documented: `FIXED_PRICE`, `ORDER_RANGE` (**ASSUMPTION**). */
+    type: string;
+    initial_price?: number | null;
+    additional_price?: number | null;
+    free_shipping_threshold?: number | null;
+    ranges?: Record<string, unknown>[] | null;
+  };
+}
+
+/** The shipping-charge grid (SH52). */
+export interface ShippingCharges {
+  shop_id: number;
+  currency_iso_code: string;
+  /** ISO-8601 timestamp. */
+  last_updated_date?: string;
+  configuration: ShippingChargeCell[];
+}
+
 /** Read-only shipping reference data. */
 export interface ShippingApi {
   /** `SH21` — `GET /api/shipping/carriers`. */
@@ -719,6 +893,122 @@ export interface ShippingApi {
   zones(options?: RequestOptions): Promise<ShippingZone[]>;
   /** `SH12` — `GET /api/shipping/types`. */
   types(options?: RequestOptions): Promise<ShippingType[]>;
+  /** `SH31` — `GET /api/shipping/logistic_classes`. */
+  logisticClasses(options?: RequestOptions): Promise<LogisticClass[]>;
+  /** `SH42` — `GET /api/shipping/configuration/shop`: lead time, delivery times, cut-offs. */
+  configuration(options?: RequestOptions): Promise<ShippingConfiguration>;
+  /** `SH52` — `GET /api/shipping/charges/shop`: the shipping-charge grid. */
+  charges(options?: RequestOptions): Promise<ShippingCharges>;
+}
+
+// ---------------------------------------------------------------------------
+// Inbox (M11) and platform (V01, PC01, L01) - read-only
+// ---------------------------------------------------------------------------
+
+/** Filters for `inbox.threads`. */
+export interface InboxThreadParams {
+  /** e.g. `MMP_ORDER`, `MMP_OFFER`, `SELLER_OPERATOR` (Mirakl's documented set). */
+  entityType?: string;
+  /** Requires `entityType`; upstream answers `400` otherwise. */
+  entityIds?: readonly string[];
+  /** ISO-8601 timestamp: only threads modified at or after it. */
+  updatedSince?: string;
+  /** `true` includes the last 100 messages of each thread. Customer content: handle with care. */
+  withMessages?: boolean;
+  /** Seek-pagination page size. Upstream default 50. */
+  limit?: number;
+  /** `next_page_token` / `previous_page_token` from the previous page. **ASSUMPTION**: parameter name. */
+  pageToken?: string;
+}
+
+/** Someone who can post on a thread. */
+export interface InboxParticipant {
+  /** Absent on the `OPERATOR` participant. */
+  id?: string;
+  /** Seen: `CUSTOMER`, `OPERATOR`, `SHOP`. */
+  type: string;
+  display_name?: string;
+}
+
+/** One message on a thread, present only when `withMessages` is set (VERIFIED 2026-10-10). */
+export interface InboxMessage {
+  id: string;
+  /** Customer-written content. */
+  body?: string | null;
+  date_created?: string;
+  /** Who wrote it. Seen: `SHOP_USER`; `organization_details` carries the author's organisation. */
+  from?: {
+    type: string;
+    display_name?: string;
+    organization_details?: Record<string, unknown> | null;
+  } | null;
+  to?: InboxParticipant[];
+}
+
+/** A message thread (M11). */
+export interface InboxThread {
+  id: string;
+  /** Seen: `{ type: "FREE_TEXT", value: "…" }`. */
+  topic?: { type: string; value?: string | null } | null;
+  /** What the thread is about. Seen: `MMP_ORDER`. */
+  entities?: { id: string; type: string; label?: string }[];
+  authorized_participants?: InboxParticipant[];
+  current_participants?: InboxParticipant[];
+  date_created?: string;
+  date_updated?: string;
+  metadata?: {
+    last_message_date?: string | null;
+    /** Non-null while the shop owes the customer a reply. */
+    shop_reply_needed_since?: string | null;
+    total_count?: number;
+  } | null;
+  /** Present only when `withMessages` is set: the most recent messages (upstream caps it at 100). */
+  messages?: InboxMessage[];
+}
+
+/** One page of threads. Seek pagination: follow `next_page_token`, there is no `total_count`. */
+export interface InboxThreadList {
+  data: InboxThread[];
+  next_page_token?: string | null;
+  previous_page_token?: string | null;
+}
+
+/** Read-only message inbox. */
+export interface InboxApi {
+  /** `M11` — `GET /api/inbox/threads`. */
+  threads(params?: InboxThreadParams, options?: RequestOptions): Promise<InboxThreadList>;
+}
+
+/** A locale the platform supports. */
+export interface PlatformLocale {
+  code: string;
+  label?: string;
+  /** True on exactly one locale. */
+  platform_default?: boolean;
+}
+
+/**
+ * Platform feature flags (PC01). Only the envelope is typed: the `features` / `modules` /
+ * `platform_configuration` trees are the operator's, read them off the loose objects.
+ */
+export interface PlatformConfiguration {
+  platform_name: string;
+  tenant_name?: string;
+  /** IANA zone the platform's timestamps are expressed in, e.g. `America/Vancouver`. */
+  timezone?: string;
+  features?: Record<string, unknown>;
+  modules?: Record<string, unknown>;
+  platform_configuration?: Record<string, unknown>;
+}
+
+/** Read-only platform facts. */
+export interface PlatformApi {
+  /** `V01` — `GET /api/version`: the Mirakl platform version string (e.g. `3.1306`). */
+  version(options?: RequestOptions): Promise<string>;
+  /** `PC01` — `GET /api/platform/configuration`. */
+  configuration(options?: RequestOptions): Promise<PlatformConfiguration>;
+  /** `L01` — `GET /api/locales`. */
+  locales(options?: RequestOptions): Promise<PlatformLocale[]>;
 }
 
 // ---------------------------------------------------------------------------
@@ -939,4 +1229,6 @@ export interface BestBuyClient {
   readonly catalog: CatalogApi;
   readonly shipping: ShippingApi;
   readonly orders: OrdersApi;
+  readonly inbox: InboxApi;
+  readonly platform: PlatformApi;
 }

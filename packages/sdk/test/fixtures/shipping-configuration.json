@@ -1,0 +1,29 @@
+{
+  "delivery_times": [
+    {
+      "delivery_time": { "earliest_days": 1, "latest_days": 2 },
+      "set_by": "OPERATOR",
+      "shipping_type_code": "M",
+      "shipping_zone_code": "ZoneA"
+    },
+    {
+      "delivery_time": { "earliest_days": 3, "latest_days": 5 },
+      "set_by": "OPERATOR",
+      "shipping_type_code": "M",
+      "shipping_zone_code": "ZoneB"
+    }
+  ],
+  "last_updated_date": "2026-01-01T00:00:00.000Z",
+  "lead_time_to_ship": { "default_value": 2, "shop_value": 1 },
+  "order_cut_off_times": [
+    {
+      "cut_off_time": "17:00:00Z",
+      "is_required": false,
+      "set_by": "OPERATOR",
+      "shipping_type_code": "M"
+    }
+  ],
+  "order_free_shipping": false,
+  "shipping_paid_by_operator": false,
+  "shop_id": "1234"
+}

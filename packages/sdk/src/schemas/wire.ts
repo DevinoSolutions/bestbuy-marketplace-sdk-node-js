@@ -588,3 +588,197 @@ export const orderListSchema = z.looseObject({
   orders: z.array(orderSchema),
   total_count: z.number(),
 });
+
+// ---------------------------------------------------------------------------
+// Ops read coverage (P11, SH31, SH42, SH52, M11, V01, PC01, L01)
+// ---------------------------------------------------------------------------
+
+/**
+ * One competing offer inside a P11 product. Public marketplace view: there is no `shop_sku`,
+ * and `shop_id` / `shop_grade` / `logistic_class` / `msrp` are null on the Best Buy instance
+ * (VERIFIED 2026-10-10, live).
+ */
+const productOfferSchema = z.looseObject({
+  offer_id: z.number(),
+  active: z.boolean().optional(),
+  all_prices: z.array(pricingSchema).optional(),
+  applicable_pricing: pricingSchema.nullish(),
+  allow_quote_requests: z.boolean().optional(),
+  channels: z.array(z.string()).optional(),
+  currency_iso_code: z.string().optional(),
+  description: z.string().nullish(),
+  discount: discountSchema.nullish(),
+  inactivity_reasons: z.array(z.string()).optional(),
+  is_professional: z.boolean().optional(),
+  leadtime_to_ship: z.number().nullish(),
+  logistic_class: z.looseObject({ code: z.string(), label: z.string().optional() }).nullish(),
+  min_quantity_alert: z.number().nullish(),
+  min_shipping_price: z.number().nullish(),
+  min_shipping_price_additional: z.number().nullish(),
+  min_shipping_type: z.string().nullish(),
+  min_shipping_zone: z.string().nullish(),
+  msrp: z.number().nullish(),
+  nb_evaluation: z.number().nullish(),
+  offer_additional_fields: z.array(additionalFieldSchema).optional(),
+  premium: z.boolean().optional(),
+  price: z.number(),
+  price_additional_info: z.string().nullish(),
+  quantity: z.number().optional(),
+  shipping_deadline: z.string().nullish(),
+  shop_grade: z.number().nullish(),
+  shop_id: z.number().nullish(),
+  shop_name: z.string().optional(),
+  state_code: z.string().optional(),
+  total_price: z.number().optional(),
+});
+
+const productWithOffersSchema = z.looseObject({
+  product_sku: z.string(),
+  product_title: z.string(),
+  product_brand: z.string().nullish(),
+  product_description: z.string().nullish(),
+  product_media: z.looseObject({ media_url: z.string(), type: z.string().optional() }).nullish(),
+  product_references: z.array(productReferenceSchema),
+  category_code: z.string(),
+  category_label: z.string(),
+  total_count: z.number(),
+  offers: z.array(productOfferSchema),
+});
+
+// P11 has no top-level `total_count` (VERIFIED 2026-10-10): the envelope is just `products`.
+export const productOffersListSchema = z.looseObject({
+  products: z.array(productWithOffersSchema),
+});
+
+export const logisticClassListSchema = z.looseObject({
+  logistic_classes: z.array(
+    z.looseObject({
+      code: z.string(),
+      label: z.string().optional(),
+      description: z.string().optional(),
+    }),
+  ),
+});
+
+export const shippingConfigurationSchema = z.looseObject({
+  shop_id: z.string(),
+  last_updated_date: z.string().optional(),
+  lead_time_to_ship: z.looseObject({
+    default_value: z.number().nullish(),
+    shop_value: z.number().nullish(),
+  }),
+  delivery_times: z.array(
+    z.looseObject({
+      shipping_type_code: z.string(),
+      shipping_zone_code: z.string(),
+      set_by: z.string().optional(),
+      delivery_time: z
+        .looseObject({
+          earliest_days: z.number().nullish(),
+          latest_days: z.number().nullish(),
+        })
+        .nullish(),
+    }),
+  ),
+  order_cut_off_times: z.array(
+    z.looseObject({
+      shipping_type_code: z.string(),
+      cut_off_time: z.string().nullish(),
+      is_required: z.boolean().optional(),
+      set_by: z.string().optional(),
+    }),
+  ),
+  order_free_shipping: z.boolean(),
+  shipping_paid_by_operator: z.boolean(),
+});
+
+export const shippingChargesSchema = z.looseObject({
+  shop_id: z.number(),
+  currency_iso_code: z.string(),
+  last_updated_date: z.string().optional(),
+  configuration: z.array(
+    z.looseObject({
+      shipping_zone_code: z.string(),
+      shipping_method_code: z.string(),
+      logistic_class_code: z.string(),
+      overridden_by_shop: z.boolean().optional(),
+      prices: z.looseObject({
+        type: z.string(),
+        initial_price: z.number().nullish(),
+        additional_price: z.number().nullish(),
+        free_shipping_threshold: z.number().nullish(),
+        ranges: z.array(z.looseObject({})).nullish(),
+      }),
+    }),
+  ),
+});
+
+// `id` is absent on the OPERATOR participant (VERIFIED 2026-10-10, live).
+const inboxParticipantSchema = z.looseObject({
+  id: z.string().optional(),
+  type: z.string(),
+  display_name: z.string().optional(),
+});
+
+export const inboxThreadListSchema = z.looseObject({
+  data: z.array(
+    z.looseObject({
+      id: z.string(),
+      topic: z.looseObject({ type: z.string(), value: z.string().nullish() }).nullish(),
+      entities: z
+        .array(z.looseObject({ id: z.string(), type: z.string(), label: z.string().optional() }))
+        .optional(),
+      authorized_participants: z.array(inboxParticipantSchema).optional(),
+      current_participants: z.array(inboxParticipantSchema).optional(),
+      date_created: z.string().optional(),
+      date_updated: z.string().optional(),
+      metadata: z
+        .looseObject({
+          last_message_date: z.string().nullish(),
+          shop_reply_needed_since: z.string().nullish(),
+          total_count: z.number().optional(),
+        })
+        .nullish(),
+      messages: z
+        .array(
+          z.looseObject({
+            id: z.string(),
+            body: z.string().nullish(),
+            date_created: z.string().optional(),
+            from: z
+              .looseObject({
+                type: z.string(),
+                display_name: z.string().optional(),
+                organization_details: z.looseObject({}).nullish(),
+              })
+              .nullish(),
+            to: z.array(inboxParticipantSchema).optional(),
+          }),
+        )
+        .optional(),
+    }),
+  ),
+  next_page_token: z.string().nullish(),
+  previous_page_token: z.string().nullish(),
+});
+
+export const platformVersionSchema = z.looseObject({ version: z.string() });
+
+export const platformConfigurationSchema = z.looseObject({
+  platform_name: z.string(),
+  tenant_name: z.string().optional(),
+  timezone: z.string().optional(),
+  features: z.looseObject({}).optional(),
+  modules: z.looseObject({}).optional(),
+  platform_configuration: z.looseObject({}).optional(),
+});
+
+export const localeListSchema = z.looseObject({
+  locales: z.array(
+    z.looseObject({
+      code: z.string(),
+      label: z.string().optional(),
+      platform_default: z.boolean().optional(),
+    }),
+  ),
+});

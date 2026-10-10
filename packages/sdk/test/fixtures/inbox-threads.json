@@ -1,0 +1,51 @@
+{
+  "data": [
+    {
+      "authorized_participants": [
+        { "display_name": "Example Customer", "id": "customer-1", "type": "CUSTOMER" },
+        { "display_name": "Example Operator", "type": "OPERATOR" },
+        { "display_name": "Example Seller", "id": "1234", "type": "SHOP" }
+      ],
+      "current_participants": [
+        { "display_name": "Example Customer", "id": "customer-1", "type": "CUSTOMER" },
+        { "display_name": "Example Seller", "id": "1234", "type": "SHOP" }
+      ],
+      "date_created": "2026-01-01T00:00:00Z",
+      "date_updated": "2026-01-02T00:00:00Z",
+      "entities": [{ "id": "ORDER-1", "label": "ORDER-1", "type": "MMP_ORDER" }],
+      "id": "thread-1",
+      "metadata": {
+        "last_message_date": "2026-01-02T00:00:00Z",
+        "last_sender": {
+          "display_name": "Example Seller",
+          "organization_details": {
+            "display_name": "Example Seller",
+            "id": "1234",
+            "type": "SHOP"
+          },
+          "type": "SHOP_USER"
+        },
+        "shop_reply_needed_since": null,
+        "total_count": 2
+      },
+      "messages": [
+        {
+          "body": "Example message body",
+          "date_created": "2026-01-02T00:00:00Z",
+          "from": {
+            "display_name": "Example Seller",
+            "organization_details": {
+              "display_name": "Example Seller",
+              "id": "1234",
+              "type": "SHOP"
+            },
+            "type": "SHOP_USER"
+          },
+          "id": "message-1",
+          "to": [{ "display_name": "Example Customer", "id": "customer-1", "type": "CUSTOMER" }]
+        }
+      ],
+      "topic": { "type": "FREE_TEXT", "value": "Example topic" }
+    }
+  ]
+}

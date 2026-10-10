@@ -1,8 +1,10 @@
 import type { BestBuyClient, BestBuyClientConfig } from "../types.js";
 import { createAccountApi } from "../account/api.js";
 import { createCatalogApi } from "../catalog/api.js";
+import { createInboxApi } from "../inbox/api.js";
 import { createOffersApi } from "../offers/api.js";
 import { createOrdersApi } from "../orders/api.js";
+import { createPlatformApi } from "../platform/api.js";
 import { createProductsApi } from "../products/api.js";
 import { createShippingApi } from "../shipping/api.js";
 import { resolveConfig } from "./config.js";
@@ -27,5 +29,7 @@ export function createBestBuyClient(config: BestBuyClientConfig): BestBuyClient 
     catalog: createCatalogApi(http),
     shipping: createShippingApi(http),
     orders: createOrdersApi(http),
+    inbox: createInboxApi(http),
+    platform: createPlatformApi(http),
   };
 }

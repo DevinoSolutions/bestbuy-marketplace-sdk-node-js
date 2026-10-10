@@ -44,9 +44,19 @@ export interface OperationSpec {
 export const OPERATIONS = {
   "account.get": { code: "A01", method: "GET", path: "/api/account", access: "read" },
 
+  "platform.version": { code: "V01", method: "GET", path: "/api/version", access: "read" },
+  "platform.configuration": {
+    code: "PC01",
+    method: "GET",
+    path: "/api/platform/configuration",
+    access: "read",
+  },
+  "platform.locales": { code: "L01", method: "GET", path: "/api/locales", access: "read" },
+
   "offers.list": { code: "OF21", method: "GET", path: "/api/offers", access: "read" },
   "offers.get": { code: "OF22", method: "GET", path: "/api/offers/{offer_id}", access: "read" },
   "offers.states": { code: "OF61", method: "GET", path: "/api/offers/states", access: "read" },
+  "offers.export": { code: "OF51", method: "GET", path: "/api/offers/export", access: "read" },
   "offers.update": { code: "OF24", method: "POST", path: "/api/offers", access: "write" },
   "offers.importFile": {
     code: "OF01",
@@ -68,6 +78,7 @@ export const OPERATIONS = {
   },
 
   "products.search": { code: "P31", method: "GET", path: "/api/products", access: "read" },
+  "products.offers": { code: "P11", method: "GET", path: "/api/products/offers", access: "read" },
   "products.importFile": {
     code: "P41",
     method: "POST",
@@ -90,6 +101,19 @@ export const OPERATIONS = {
     code: "P45",
     method: "GET",
     path: "/api/products/imports/{import_id}/new_product_report",
+    access: "read",
+  },
+
+  "products.getTransformedFile": {
+    code: "P46",
+    method: "GET",
+    path: "/api/products/imports/{import_id}/transformed_file",
+    access: "read",
+  },
+  "products.getTransformationErrorReport": {
+    code: "P47",
+    method: "GET",
+    path: "/api/products/imports/{import_id}/transformation_error_report",
     access: "read",
   },
 
@@ -116,6 +140,26 @@ export const OPERATIONS = {
   },
   "shipping.zones": { code: "SH11", method: "GET", path: "/api/shipping/zones", access: "read" },
   "shipping.types": { code: "SH12", method: "GET", path: "/api/shipping/types", access: "read" },
+  "shipping.logisticClasses": {
+    code: "SH31",
+    method: "GET",
+    path: "/api/shipping/logistic_classes",
+    access: "read",
+  },
+  "shipping.configuration": {
+    code: "SH42",
+    method: "GET",
+    path: "/api/shipping/configuration/shop",
+    access: "read",
+  },
+  "shipping.charges": {
+    code: "SH52",
+    method: "GET",
+    path: "/api/shipping/charges/shop",
+    access: "read",
+  },
+
+  "inbox.threads": { code: "M11", method: "GET", path: "/api/inbox/threads", access: "read" },
 
   "orders.list": { code: "OR11", method: "GET", path: "/api/orders", access: "read" },
   "orders.get": { code: "OR12", method: "GET", path: "/api/orders/{order_id}", access: "read" },
