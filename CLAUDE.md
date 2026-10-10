@@ -31,10 +31,11 @@ Target API: **Best Buy Canada Marketplace**, a Mirakl Marketplace Platform (MMP)
 
 - `docs/research/sdk-public-api.md` — the SDK's public surface (a future MCP server consumes
   only this).
-- `docs/research/bestbuy-api-contracts.md` — the wire shapes. **Everything in it is currently
-  marked ASSUMPTION**: it was derived from standard Mirakl conventions, not from live traffic.
-  When you verify an endpoint, replace the marker with `VERIFIED <date>` and paste the
-  observed payload. When you add an endpoint, extend the doc first (cite the source; mark
+- `docs/research/bestbuy-api-contracts.md` — the wire shapes. Every READ endpoint the SDK
+  wraps is `VERIFIED 2026-10-10 (live)`, and OF24 is verified; the remaining writes (OF01, P41,
+  OR21, OR23, OR24) are still marked ASSUMPTION - derived from standard Mirakl conventions,
+  not from live traffic. When you verify an endpoint, replace the marker with
+  `VERIFIED <date>` and paste the observed payload (redacted). When you add an endpoint, extend the doc first (cite the source; mark
   gaps **ASSUMPTION**).
 - `docs/adr/0001-thin-fetch-client.md` — thin fetch client, faithful snake_case wire shapes,
   one operations table, writes acknowledged not awaited. Follow it.
