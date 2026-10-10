@@ -1,0 +1,13 @@
+{
+  "products": [
+    {
+      "category_code": "CAT_1076",
+      "category_label": "Computer Memory",
+      "product_id": "000000000001",
+      "product_id_type": "UPC-A",
+      "product_sku": "10000001",
+      "product_title": "Example product"
+    }
+  ],
+  "total_count": 1
+}

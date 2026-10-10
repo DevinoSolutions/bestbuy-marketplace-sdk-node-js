@@ -63,13 +63,13 @@ describe("product import follow-up", () => {
     const { client } = harness([
       route("GET", /^\/api\/products\/imports\/21$/, 200, {
         import_id: 21,
-        import_status: "RUNNING",
-        transformed_lines: 10,
+        import_status: "SENT",
+        transform_lines_read: 10,
       }),
     ]);
     const status = await client.products.getImport(21);
-    expect(status.import_status).toBe("RUNNING");
-    expect(status.transformed_lines).toBe(10);
+    expect(status.import_status).toBe("SENT");
+    expect(status.transform_lines_read).toBe(10);
   });
 
   it("returns the error report and the new-product report as raw text", async () => {
@@ -79,5 +79,20 @@ describe("product import follow-up", () => {
     ]);
     expect(await client.products.getImportErrorReport(21)).toBe("line;error\n");
     expect(await client.products.getNewProductReport(21)).toBe("sku;status\n");
+  });
+
+  it("surfaces the live 404 for a report that does not exist as an API error", async () => {
+    // VERIFIED 2026-10-10: P45 answers 404 (not an empty CSV) when the import produced no
+    // new-product report.
+    const { client } = harness([
+      route("GET", /new_product_report/, 404, {
+        message: "Resource not available : report on import id 21",
+        status: 404,
+      }),
+    ]);
+    await expect(client.products.getNewProductReport(21)).rejects.toMatchObject({
+      status: 404,
+      message: expect.stringContaining("Resource not available") as unknown,
+    });
   });
 });

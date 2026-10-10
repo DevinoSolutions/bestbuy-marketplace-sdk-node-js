@@ -1,7 +1,8 @@
 /**
  * Regression suite built from REAL read-only responses captured against the live Best Buy
  * Canada shop on 2026-09-11, plus the offer-import status and additional-field declarations
- * captured on 2026-09-16.
+ * captured on 2026-09-16, and the order, product-import-status and product-match payloads
+ * captured on 2026-10-10.
  *
  * The fixtures in `test/fixtures/` keep the observed keys, types and nulls verbatim;
  * identifying values (shop id, SKUs, titles, contact and billing details) were replaced with
@@ -129,6 +130,106 @@ describe("live payload fixtures", () => {
     expect(page.totalCount).toBe(0);
   });
 
+  it("parses real orders: one awaiting acceptance, one received and tracked", async () => {
+    const { client } = harness([route("GET", /^\/api\/orders(\?|$)/, 200, fixture("orders-list"))]);
+    const page = await client.orders.list({ max: 100 });
+
+    expect(page.totalCount).toBe(2);
+    const [waiting, received] = page.items;
+
+    // Before acceptance: every transition date, the tracking trio and the addresses are null.
+    expect(waiting?.order_state).toBe("WAITING_ACCEPTANCE");
+    expect(waiting?.acceptance_decision_date).toBeNull();
+    expect(waiting?.customer_debited_date).toBeNull();
+    expect(waiting?.shipping_company).toBeNull();
+    expect(waiting?.shipping_tracking).toBeNull();
+    expect(waiting?.shipping_tracking_url).toBeNull();
+    expect(waiting?.customer?.billing_address).toBeNull();
+    expect(waiting?.customer?.shipping_address).toBeNull();
+    expect(waiting?.can_shop_ship).toBe(false);
+    expect(waiting?.order_lines[0]?.shipped_date).toBeNull();
+
+    // After delivery: dates, carrier, tracking and both addresses are populated.
+    expect(received?.order_state).toBe("RECEIVED");
+    expect(received?.shipping_company).toBe("Canada Post");
+    expect(received?.shipping_tracking_url).toContain("canadapost.ca");
+    expect(received?.customer?.shipping_address?.street_1).toBeTypeOf("string");
+    expect(received?.order_lines[0]?.shipped_date).toBeTypeOf("string");
+
+    // Fields the old assumed shape did not model.
+    expect(received?.shipping_deadline).toBeTypeOf("string");
+    expect(received?.delivery_date?.earliest).toBeTypeOf("string");
+    expect(received?.payment_workflow).toBe("PAY_ON_ACCEPTANCE");
+    expect(received?.order_tax_mode).toBe("TAX_EXCLUDED");
+    expect(received?.shipping_type_code).toBe("M");
+    expect(received?.fulfillment?.center?.code).toBe("DEFAULT");
+    expect(received?.references?.order_reference_for_customer).toBeTypeOf("string");
+    expect(received?.order_additional_fields).toEqual([]);
+
+    const line = received?.order_lines[0];
+    expect(line?.offer_state_code).toBe("11");
+    expect(line?.order_line_additional_fields?.[0]).toMatchObject({
+      code: "language",
+      type: "STRING",
+    });
+    expect(line?.taxes?.[0]?.tax_calculation_rule).toBeTypeOf("string");
+    expect(line?.commission_taxes?.[0]?.rate).toBeTypeOf("number");
+    expect(line?.product_medias?.[0]?.media_url).toBeTypeOf("string");
+    expect(line?.cancelations).toEqual([]);
+    expect(line?.refunds).toEqual([]);
+  });
+
+  it("parses the reduced order object that orders.get returns", async () => {
+    const { client } = harness([route("GET", "/api/orders/ORDER-2-A", 200, fixture("order"))]);
+    const order = await client.orders.get("ORDER-2-A");
+
+    expect(order.order_id).toBe("ORDER-2-A");
+    expect(order.order_state).toBe("RECEIVED");
+    expect(order.shipping_tracking).toBeTypeOf("string");
+    // OR12 omits fields OR11 carries; the schema must not require them.
+    expect(order.delivery_date).toBeUndefined();
+    expect(order.shipping_deadline).toBeUndefined();
+    expect(order.fulfillment).toBeUndefined();
+    expect(order.currency_iso_code).toBeUndefined();
+  });
+
+  it("parses a product import status that has reached the integration stage", async () => {
+    const { client } = harness([
+      route("GET", /^\/api\/products\/imports\/1000001$/, 200, fixture("product-import-status")),
+    ]);
+    const status = await client.products.getImport(1000001);
+
+    expect(status.import_status).toBe("COMPLETE");
+    expect(status.transform_lines_read).toBe(1);
+    expect(status.transform_lines_in_success).toBe(1);
+    expect(status.transform_lines_in_error).toBe(0);
+    expect(status.has_error_report).toBe(true);
+    expect(status.has_new_product_report).toBe(false);
+    expect(status.has_transformed_file).toBe(true);
+    // COMPLETE with nothing synchronized: the outcome lives in integration_details.
+    expect(status.integration_details?.products_successfully_synchronized).toBe(0);
+    expect(status.integration_details?.products_not_accepted_in_time).toBe(1);
+    expect(status.update_options?.lock_mode).toBe("NONE");
+  });
+
+  it("parses a product search hit", async () => {
+    const { client, calls } = harness([
+      route("GET", /^\/api\/products(\?|$)/, 200, fixture("products-match")),
+    ]);
+    const page = await client.products.search({
+      references: [{ type: "UPC-A", value: "000000000001" }],
+    });
+
+    expect(page.totalCount).toBe(1);
+    expect(page.items[0]).toMatchObject({
+      product_id: "000000000001",
+      product_id_type: "UPC-A",
+      category_code: "CAT_1076",
+    });
+    // The pipe goes out percent-encoded, which the live API accepts (VERIFIED 2026-10-10).
+    expect(calls[0]?.url.search).toContain("UPC-A%7C000000000001");
+  });
+
   it("parses an empty product search", async () => {
     const { client } = harness([
       route("GET", /^\/api\/products(\?|$)/, 200, fixture("products-empty")),
@@ -201,6 +302,13 @@ describe("live payload fixtures", () => {
     // The optional EHF fields are NUMERIC, and `price-lock` is operator-owned.
     expect(fields.some((field) => field.type === "NUMERIC" && field.required === false)).toBe(true);
     expect(fields.find((field) => field.code === "price-lock")?.editable).toBe(false);
+
+    // Without an `entities` filter AF01 also describes ORDER_LINE and SHOP fields.
+    expect(fields.some((field) => field.entity === "ORDER_LINE" && field.code === "language")).toBe(
+      true,
+    );
+    expect(fields.some((field) => field.type === "TEXTAREA")).toBe(true);
+    expect(fields.some((field) => field.type === "BOOLEAN")).toBe(true);
 
     expect(calls[0]?.url.searchParams.get("entities")).toBe("OFFER");
   });

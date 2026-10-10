@@ -138,7 +138,10 @@ export class BestBuyHttpClient {
     // Redact BEFORE anything reads the body: an upstream that echoes the Authorization
     // header must not be able to smuggle the key into an error, a log or a return value.
     const text = redact(raw, this.config.apiKey);
-    const requestId = response.headers.get("x-request-id") ?? undefined;
+    // Best Buy's gateway sends `x-correlation-id` (VERIFIED 2026-10-10) and no `x-request-id`;
+    // the latter is kept as a fallback for stock Mirakl deployments and intermediaries.
+    const requestId =
+      response.headers.get("x-correlation-id") ?? response.headers.get("x-request-id") ?? undefined;
 
     if (!response.ok) {
       throw apiErrorFromResponse({

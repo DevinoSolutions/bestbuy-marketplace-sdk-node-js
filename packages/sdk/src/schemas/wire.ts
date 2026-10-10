@@ -11,8 +11,8 @@
  *   deeper.
  *
  * Shapes marked VERIFIED in `docs/research/bestbuy-api-contracts.md` were parsed from real
- * read-only responses captured against the live shop on 2026-09-11; the rest are still
- * **ASSUMPTION**. Fields the live payloads carry are typed here; fields only Mirakl's
+ * read-only responses captured against the live shop (2026-09-11, 2026-09-16 and
+ * 2026-10-10); the rest are still **ASSUMPTION**. Fields the live payloads carry are typed here; fields only Mirakl's
  * documentation mentions are typed optional so an operator that omits them still parses.
  */
 import { z } from "zod";
@@ -231,6 +231,7 @@ export const offerListSchema = z.looseObject({
 
 export const offerStateListSchema = z.looseObject({
   offer_states: z.array(z.looseObject({ code: z.string(), label: z.string().optional() })),
+  total_count: z.number().optional(),
 });
 
 export const importTicketSchema = z.looseObject({
@@ -275,16 +276,39 @@ export const productListSchema = z.looseObject({
   total_count: z.number(),
 });
 
+// Live P42 body (VERIFIED 2026-10-10). Unlike OF02 it spells the outcome `import_status`, and
+// it counts `transform_lines_*` plus an `integration_details` breakdown rather than the
+// `lines_in_*` / `offer_*` counters an offer import carries.
 export const productImportStatusSchema = z.looseObject({
   import_id: z.number(),
   import_status: z.string().optional(),
-  has_error_report: z.boolean().optional(),
-  transformed_lines: z.number().optional(),
-  integrated_products: z.number().optional(),
-  lines_in_error: z.number().optional(),
+  shop_id: z.number().optional(),
   date_created: z.string().optional(),
-  date_process_started: z.string().optional(),
-  date_process_ended: z.string().optional(),
+  has_error_report: z.boolean().optional(),
+  has_new_product_report: z.boolean().optional(),
+  has_transformation_error_report: z.boolean().optional(),
+  has_transformed_file: z.boolean().optional(),
+  transform_lines_read: z.number().optional(),
+  transform_lines_in_success: z.number().optional(),
+  transform_lines_in_error: z.number().optional(),
+  transform_lines_with_warning: z.number().optional(),
+  integration_details: z
+    .looseObject({
+      invalid_products: z.number().optional(),
+      products_not_accepted_in_time: z.number().optional(),
+      products_not_synchronized_in_time: z.number().optional(),
+      products_successfully_synchronized: z.number().optional(),
+      products_with_synchronization_issues: z.number().optional(),
+      products_with_wrong_identifiers: z.number().optional(),
+      rejected_products: z.number().optional(),
+    })
+    .nullish(),
+  update_options: z
+    .looseObject({
+      allow_locked_values_override: z.boolean().optional(),
+      lock_mode: z.string().optional(),
+    })
+    .nullish(),
 });
 
 export const hierarchyListSchema = z.looseObject({
@@ -366,6 +390,8 @@ export const additionalFieldListSchema = z.looseObject({
       regex: z.string().optional(),
     }),
   ),
+  // Present live (VERIFIED 2026-10-10), equal to the array length: AF01 is not paged.
+  total_count: z.number().optional(),
 });
 
 export const carrierListSchema = z.looseObject({
@@ -405,41 +431,145 @@ export const shippingTypeListSchema = z.looseObject({
   ),
 });
 
-const orderLineSchema = z.looseObject({
-  order_line_id: z.string(),
-  order_line_state: z.string().optional(),
-  order_line_state_reason_code: z.string().nullish(),
-  offer_id: z.number().optional(),
-  offer_sku: z.string().optional(),
-  product_sku: z.string().optional(),
-  product_title: z.string().optional(),
-  quantity: z.number(),
-  price: z.number().optional(),
-  total_price: z.number().optional(),
-  shipping_price: z.number().optional(),
-  commission_fee: z.number().optional(),
-  can_refund: z.boolean().optional(),
+const orderTaxSchema = z.looseObject({
+  code: z.string(),
+  amount: z.number().optional(),
+  rate: z.number().optional(),
+  tax_calculation_rule: z.string().optional(),
 });
 
+const orderAddressSchema = z.looseObject({
+  civility: z.string().nullish(),
+  firstname: z.string().nullish(),
+  lastname: z.string().nullish(),
+  company: z.string().nullish(),
+  company_2: z.string().nullish(),
+  street_1: z.string().nullish(),
+  street_2: z.string().nullish(),
+  additional_info: z.string().nullish(),
+  city: z.string().nullish(),
+  state: z.string().nullish(),
+  zip_code: z.string().nullish(),
+  country: z.string().nullish(),
+  country_iso_code: z.string().nullish(),
+  phone: z.string().nullish(),
+  phone_secondary: z.string().nullish(),
+});
+
+// Order lines, VERIFIED 2026-10-10 against six real orders. Dates are null until the
+// matching transition happens (`shipped_date` before shipping, `debited_date` before the
+// customer is debited, ...).
+const orderLineSchema = z.looseObject({
+  order_line_id: z.string(),
+  order_line_index: z.number().optional(),
+  order_line_state: z.string().optional(),
+  order_line_state_reason_code: z.string().nullish(),
+  order_line_state_reason_label: z.string().nullish(),
+  offer_id: z.number().optional(),
+  offer_sku: z.string().optional(),
+  offer_state_code: z.string().optional(),
+  product_sku: z.string().optional(),
+  product_shop_sku: z.string().nullish(),
+  product_title: z.string().optional(),
+  category_code: z.string().optional(),
+  category_label: z.string().optional(),
+  description: z.string().nullish(),
+  price_additional_info: z.string().nullish(),
+  quantity: z.number(),
+  price: z.number().optional(),
+  price_unit: z.number().optional(),
+  total_price: z.number().optional(),
+  shipping_price: z.number().optional(),
+  shipping_price_unit: z.number().nullish(),
+  shipping_price_additional_unit: z.number().nullish(),
+  commission_fee: z.number().optional(),
+  commission_rate_vat: z.number().optional(),
+  commission_vat: z.number().optional(),
+  total_commission: z.number().optional(),
+  commission_taxes: z.array(orderTaxSchema).optional(),
+  taxes: z.array(orderTaxSchema).optional(),
+  shipping_taxes: z.array(orderTaxSchema).optional(),
+  can_refund: z.boolean().optional(),
+  cancelations: z.array(z.unknown()).optional(),
+  refunds: z.array(z.unknown()).optional(),
+  fees: z.array(z.unknown()).optional(),
+  promotions: z.array(z.unknown()).optional(),
+  created_date: z.string().optional(),
+  last_updated_date: z.string().optional(),
+  debited_date: z.string().nullish(),
+  shipped_date: z.string().nullish(),
+  received_date: z.string().nullish(),
+  order_line_additional_fields: z.array(additionalFieldSchema).optional(),
+  product_medias: z
+    .array(
+      z.looseObject({
+        media_url: z.string(),
+        mime_type: z.string().nullish(),
+        type: z.string().nullish(),
+      }),
+    )
+    .optional(),
+  shipping_from: z
+    .looseObject({
+      address: orderAddressSchema.nullish(),
+      warehouse: z.unknown().nullish(),
+    })
+    .nullish(),
+});
+
+// Orders, VERIFIED 2026-10-10. OR11 (list) returns the full object; OR12 (get) returns a
+// strict subset of it - no `delivery_date`, `shipping_deadline`, `shipping_carrier_code`,
+// `references`, `fulfillment`, `can_cancel`, `currency_iso_code`, ... - so every field beyond
+// the identifiers stays optional.
 export const orderSchema = z.looseObject({
   order_id: z.string(),
   commercial_id: z.string().optional(),
   order_state: z.string().optional(),
   order_state_reason_code: z.string().nullish(),
+  order_state_reason_label: z.string().nullish(),
   created_date: z.string().optional(),
   last_updated_date: z.string().optional(),
   acceptance_decision_date: z.string().nullish(),
   customer_debited_date: z.string().nullish(),
   can_cancel: z.boolean().optional(),
+  can_shop_ship: z.boolean().optional(),
   currency_iso_code: z.string().optional(),
   price: z.number().optional(),
   total_price: z.number().optional(),
   total_commission: z.number().optional(),
   shipping_price: z.number().optional(),
   shipping_type_code: z.string().optional(),
+  shipping_type_label: z.string().optional(),
+  shipping_type_standard_code: z.string().optional(),
+  shipping_zone_code: z.string().optional(),
+  shipping_zone_label: z.string().optional(),
   shipping_company: z.string().nullish(),
+  shipping_carrier_code: z.string().nullish(),
+  shipping_carrier_standard_code: z.string().nullish(),
   shipping_tracking: z.string().nullish(),
   shipping_tracking_url: z.string().nullish(),
+  shipping_deadline: z.string().nullish(),
+  shipping_pudo_id: z.string().nullish(),
+  leadtime_to_ship: z.number().optional(),
+  delivery_date: z
+    .looseObject({ earliest: z.string().nullish(), latest: z.string().nullish() })
+    .nullish(),
+  fulfillment: z
+    .looseObject({ center: z.looseObject({ code: z.string().optional() }).optional() })
+    .nullish(),
+  references: z.looseObject({ order_reference_for_customer: z.string().nullish() }).nullish(),
+  payment_type: z.string().nullish(),
+  payment_workflow: z.string().optional(),
+  order_tax_mode: z.string().optional(),
+  customer_notification_email: z.string().nullish(),
+  customer_directly_pays_seller: z.boolean().optional(),
+  fully_refunded: z.boolean().optional(),
+  has_customer_message: z.boolean().optional(),
+  has_incident: z.boolean().optional(),
+  has_invoice: z.boolean().optional(),
+  channel: z.string().nullish(),
+  quote_id: z.string().nullish(),
+  order_additional_fields: z.array(additionalFieldSchema).optional(),
   customer: z
     .looseObject({
       customer_id: z.string().optional(),
@@ -447,6 +577,8 @@ export const orderSchema = z.looseObject({
       lastname: z.string().optional(),
       civility: z.string().optional(),
       locale: z.string().optional(),
+      billing_address: orderAddressSchema.nullish(),
+      shipping_address: orderAddressSchema.nullish(),
     })
     .optional(),
   order_lines: z.array(orderLineSchema),
