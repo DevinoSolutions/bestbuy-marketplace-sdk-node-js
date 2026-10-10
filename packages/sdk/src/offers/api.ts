@@ -1,6 +1,7 @@
 import type {
   ImportTicket,
   Offer,
+  OfferExportParams,
   OfferImportFileInput,
   OfferImportStatus,
   OfferListParams,
@@ -73,6 +74,15 @@ export function createOffersApi(http: BestBuyHttpClient): OffersApi {
     async states(options?: RequestOptions): Promise<OfferState[]> {
       const raw = await http.requestJson({ operation: "offers.states" }, options);
       return parseWith(offerStateListSchema, raw, "offer state list").offer_states;
+    },
+
+    async export(params?: OfferExportParams, options?: RequestOptions): Promise<string> {
+      const query: Record<string, QueryValue> = {};
+      if (params?.includeInactiveOffers !== undefined) {
+        query.include_inactive_offers = params.includeInactiveOffers;
+      }
+      if (params?.lastRequestDate !== undefined) query.last_request_date = params.lastRequestDate;
+      return http.requestText({ operation: "offers.export", query }, options);
     },
 
     // WRITE. Asynchronous upstream: the response only acknowledges the import; poll

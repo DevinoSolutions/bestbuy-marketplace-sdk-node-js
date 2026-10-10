@@ -1,0 +1,33 @@
+{
+  "configuration": [
+    {
+      "logistic_class_code": "SMALL",
+      "overridden_by_shop": false,
+      "prices": {
+        "additional_price": null,
+        "free_shipping_threshold": null,
+        "initial_price": null,
+        "ranges": [],
+        "type": "FREE_SHIPPING"
+      },
+      "shipping_method_code": "M",
+      "shipping_zone_code": "ZoneA"
+    },
+    {
+      "logistic_class_code": "LARGE",
+      "overridden_by_shop": true,
+      "prices": {
+        "additional_price": 2,
+        "free_shipping_threshold": 100,
+        "initial_price": 5,
+        "ranges": [],
+        "type": "FIXED_PRICE"
+      },
+      "shipping_method_code": "M",
+      "shipping_zone_code": "ZoneB"
+    }
+  ],
+  "currency_iso_code": "CAD",
+  "last_updated_date": "2026-01-01T00:00:00.000Z",
+  "shop_id": 1234
+}

@@ -10,7 +10,8 @@ import type { BestBuyClient } from "../../src/types.js";
  *
  * SAFETY: nothing in the live suite performs a write. Only the READ rows of
  * `src/operations.ts` are ever issued (account, offer/order list and get, offer states,
- * product search, catalog metadata, shipping reference data), and
+ * product search and competing offers, offer export, catalog metadata, shipping reference data
+ * and configuration, inbox threads, platform facts), and
  * `npm run check:live-readonly` fails the build if that ever stops being true.
  */
 function loadDotEnv(): void {

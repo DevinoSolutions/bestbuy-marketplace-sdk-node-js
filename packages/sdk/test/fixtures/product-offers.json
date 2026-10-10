@@ -1,0 +1,115 @@
+{
+  "products": [
+    {
+      "category_code": "CAT_0000",
+      "category_label": "Example Category",
+      "offers": [
+        {
+          "active": true,
+          "all_prices": [
+            {
+              "channel_code": null,
+              "discount_end_date": null,
+              "discount_start_date": null,
+              "price": 10.5,
+              "unit_discount_price": null,
+              "unit_origin_price": 10.5,
+              "volume_prices": [
+                {
+                  "price": 10.5,
+                  "quantity_threshold": 1,
+                  "unit_discount_price": null,
+                  "unit_origin_price": 10.5
+                }
+              ]
+            }
+          ],
+          "allow_quote_requests": false,
+          "applicable_pricing": {
+            "channel_code": null,
+            "discount_end_date": null,
+            "discount_start_date": null,
+            "price": 10.5,
+            "unit_discount_price": null,
+            "unit_origin_price": 10.5,
+            "volume_prices": [
+              {
+                "price": 10.5,
+                "quantity_threshold": 1,
+                "unit_discount_price": null,
+                "unit_origin_price": 10.5
+              }
+            ]
+          },
+          "channels": [],
+          "currency_iso_code": "CAD",
+          "description": null,
+          "discount": null,
+          "inactivity_reasons": [],
+          "is_professional": true,
+          "leadtime_to_ship": 2,
+          "logistic_class": null,
+          "min_quantity_alert": null,
+          "min_shipping_price": 0,
+          "min_shipping_price_additional": 0,
+          "min_shipping_type": "M",
+          "min_shipping_zone": "ZoneA",
+          "msrp": null,
+          "nb_evaluation": 3,
+          "offer_additional_fields": [],
+          "offer_id": 1001,
+          "premium": false,
+          "price": 10.5,
+          "price_additional_info": null,
+          "quantity": 4,
+          "shipping_deadline": "2026-01-02T06:59:59.999Z",
+          "shop_grade": null,
+          "shop_id": null,
+          "shop_name": "Example Seller A",
+          "state_code": "11",
+          "total_price": 10.5
+        },
+        {
+          "active": false,
+          "all_prices": [],
+          "allow_quote_requests": false,
+          "applicable_pricing": null,
+          "channels": [],
+          "currency_iso_code": "CAD",
+          "description": null,
+          "discount": null,
+          "inactivity_reasons": ["ZERO_QUANTITY"],
+          "is_professional": true,
+          "leadtime_to_ship": 2,
+          "logistic_class": null,
+          "min_quantity_alert": null,
+          "min_shipping_price": 0,
+          "min_shipping_price_additional": 0,
+          "min_shipping_type": "M",
+          "min_shipping_zone": "ZoneA",
+          "msrp": null,
+          "nb_evaluation": 0,
+          "offer_additional_fields": [],
+          "offer_id": 1002,
+          "premium": false,
+          "price": 12,
+          "price_additional_info": null,
+          "quantity": 0,
+          "shipping_deadline": "2026-01-02T06:59:59.999Z",
+          "shop_grade": null,
+          "shop_id": null,
+          "shop_name": "Example Seller B",
+          "state_code": "11",
+          "total_price": 12
+        }
+      ],
+      "product_brand": "ExampleBrand",
+      "product_description": "Example description",
+      "product_media": { "media_url": "https://example.invalid/image.jpg", "type": "IMAGE" },
+      "product_references": [{ "reference": "000000000000", "reference_type": "UPC-A" }],
+      "product_sku": "PROD-1",
+      "product_title": "Example product",
+      "total_count": 2
+    }
+  ]
+}
