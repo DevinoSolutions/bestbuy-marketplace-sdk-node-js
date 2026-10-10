@@ -25,6 +25,31 @@
       "label": "Price Lock",
       "required": false,
       "type": "STRING"
+    },
+    {
+      "code": "language",
+      "editable": false,
+      "entity": "ORDER_LINE",
+      "label": "Order language",
+      "required": true,
+      "type": "STRING"
+    },
+    {
+      "code": "french-supported",
+      "editable": true,
+      "entity": "SHOP",
+      "label": "French Supported",
+      "required": true,
+      "type": "BOOLEAN"
+    },
+    {
+      "code": "return-policy",
+      "editable": false,
+      "entity": "SHOP",
+      "label": "Return Policy",
+      "required": false,
+      "type": "TEXTAREA"
     }
-  ]
+  ],
+  "total_count": 6
 }

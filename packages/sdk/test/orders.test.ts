@@ -34,6 +34,18 @@ describe("orders.list", () => {
   });
 });
 
+describe("orders.list past the end", () => {
+  it("accepts the live quirk where an offset beyond the data reports total_count 0", async () => {
+    // VERIFIED 2026-10-10: GET /api/orders?offset=1000 answers {"orders":[],"total_count":0}
+    // even though the shop has orders (GET /api/offers keeps reporting the real total).
+    const { client } = harness([route("GET", listPath, 200, { orders: [], total_count: 0 })]);
+    const page = await client.orders.list({ offset: 1000, max: 5 });
+    expect(page.items).toEqual([]);
+    expect(page.totalCount).toBe(0);
+    expect(page.offset).toBe(1000);
+  });
+});
+
 describe("orders.listAll", () => {
   it("pages through every order", async () => {
     const { client, calls } = harness([

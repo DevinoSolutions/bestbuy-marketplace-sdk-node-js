@@ -1,0 +1,27 @@
+{
+  "date_created": "2026-01-01T00:00:00Z",
+  "has_error_report": true,
+  "has_new_product_report": false,
+  "has_transformation_error_report": false,
+  "has_transformed_file": true,
+  "import_id": 1000001,
+  "import_status": "COMPLETE",
+  "integration_details": {
+    "invalid_products": 0,
+    "products_not_accepted_in_time": 1,
+    "products_not_synchronized_in_time": 0,
+    "products_successfully_synchronized": 0,
+    "products_with_synchronization_issues": 0,
+    "products_with_wrong_identifiers": 0,
+    "rejected_products": 0
+  },
+  "shop_id": 1234,
+  "transform_lines_in_error": 0,
+  "transform_lines_in_success": 1,
+  "transform_lines_read": 1,
+  "transform_lines_with_warning": 0,
+  "update_options": {
+    "allow_locked_values_override": false,
+    "lock_mode": "NONE"
+  }
+}

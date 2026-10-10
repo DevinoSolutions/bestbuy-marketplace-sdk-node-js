@@ -8,8 +8,9 @@ import type { BestBuyClient } from "../../src/types.js";
  * `process.env` (no dependency; never overwrites already-set vars, never logs values) so the
  * suite runs straight from the project's `.env` once `BESTBUY_LIVE_TESTS=true` is set.
  *
- * SAFETY: nothing in the live suite performs a write. Only `account.get`, `offers.list`,
- * `orders.list`, `catalog.hierarchies` and `catalog.valueLists` are ever issued, and
+ * SAFETY: nothing in the live suite performs a write. Only the READ rows of
+ * `src/operations.ts` are ever issued (account, offer/order list and get, offer states,
+ * product search, catalog metadata, shipping reference data), and
  * `npm run check:live-readonly` fails the build if that ever stops being true.
  */
 function loadDotEnv(): void {

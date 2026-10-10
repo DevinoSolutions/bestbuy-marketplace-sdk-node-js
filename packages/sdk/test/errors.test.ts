@@ -26,6 +26,36 @@ describe("upstream error mapping", () => {
     expect(error.retryable).toBe(false);
   });
 
+  it("maps the live 401 body, which lists status before message", async () => {
+    // VERIFIED 2026-10-10: a bad API key answers {"status":401,"message":"Unauthorized"}.
+    const error = await failWith(401, { status: 401, message: "Unauthorized" });
+    expect(error.status).toBe(401);
+    expect(error.message).toContain("Unauthorized");
+    expect(error.retryable).toBe(false);
+  });
+
+  it("maps the live 400 for a rejected query value", async () => {
+    // VERIFIED 2026-10-10: an unknown order_state_codes value is a 400 naming the field.
+    const error = await failWith(400, {
+      message: "Invalid value supplied for field 'order_state_codes'. Rejected value: 'BOGUS'",
+      status: 400,
+    });
+    expect(error.status).toBe(400);
+    expect(error.message).toContain("order_state_codes");
+    expect(error.retryable).toBe(false);
+  });
+
+  it("maps the live 404 bodies for an unknown id", async () => {
+    // VERIFIED 2026-10-10: the message is bare ("Not Found") on offers and offer imports,
+    // and descriptive on orders and product imports.
+    expect((await failWith(404, { message: "Not Found", status: 404 })).message).toContain(
+      "Not Found",
+    );
+    expect(
+      (await failWith(404, { message: "No order with id: 'ORDER-X'", status: 404 })).message,
+    ).toContain("No order with id");
+  });
+
   it("maps a 403 and extracts the upstream error code", async () => {
     const error = await failWith(403, {
       errors: [{ message: "Forbidden", code: "ACCESS_DENIED" }],
@@ -58,6 +88,16 @@ describe("upstream error mapping", () => {
   it("captures the upstream request id when the response carries one", async () => {
     const error = await failWith(500, { message: "boom" }, { "x-request-id": "req-9" });
     expect(error.requestId).toBe("req-9");
+  });
+
+  it("falls back to the live x-correlation-id header for the request id", async () => {
+    // VERIFIED 2026-10-10: Best Buy sends x-correlation-id on every response, never x-request-id.
+    const error = await failWith(
+      500,
+      { message: "boom" },
+      { "x-correlation-id": "00000000-0000-4000-8000-000000000000" },
+    );
+    expect(error.requestId).toBe("00000000-0000-4000-8000-000000000000");
   });
 
   it("redacts the API key even when the upstream echoes it back", async () => {

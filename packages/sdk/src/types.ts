@@ -11,7 +11,8 @@
  *   a second vocabulary that is guaranteed to drift.
  *
  * Response shapes marked VERIFIED in `docs/research/bestbuy-api-contracts.md` were taken
- * from real read-only responses captured on 2026-09-11; the rest are still **ASSUMPTION**.
+ * from real read-only responses captured on 2026-09-11, 2026-09-16 and 2026-10-10; the rest
+ * are still **ASSUMPTION**.
  * Response objects are validated loosely: known fields are type-checked, unknown fields pass
  * through untouched.
  */
@@ -474,17 +475,39 @@ export interface ProductImportFileInput {
   operatorFormat?: boolean;
 }
 
-/** Progress of a product import. */
+/**
+ * Progress of a product import (VERIFIED 2026-10-10).
+ *
+ * Unlike an offer import, a product import runs in two stages: Best Buy first transforms the
+ * file (`transform_lines_*`, status `SENT` while that is the only thing that happened), then
+ * the products are integrated into the catalog (`integration_details`, status `COMPLETE`).
+ * `COMPLETE` still does not mean success - read `integration_details` and the reports.
+ */
 export interface ProductImportStatus {
   import_id: number;
+  /** Seen: `SENT`, `COMPLETE`. */
   import_status?: string;
-  has_error_report?: boolean;
-  transformed_lines?: number;
-  integrated_products?: number;
-  lines_in_error?: number;
+  shop_id?: number;
   date_created?: string;
-  date_process_started?: string;
-  date_process_ended?: string;
+  has_error_report?: boolean;
+  has_new_product_report?: boolean;
+  has_transformation_error_report?: boolean;
+  has_transformed_file?: boolean;
+  transform_lines_read?: number;
+  transform_lines_in_success?: number;
+  transform_lines_in_error?: number;
+  transform_lines_with_warning?: number;
+  /** Present once the import has reached the integration stage. */
+  integration_details?: {
+    invalid_products?: number;
+    products_not_accepted_in_time?: number;
+    products_not_synchronized_in_time?: number;
+    products_successfully_synchronized?: number;
+    products_with_synchronization_issues?: number;
+    products_with_wrong_identifiers?: number;
+    rejected_products?: number;
+  } | null;
+  update_options?: { allow_locked_values_override?: boolean; lock_mode?: string } | null;
 }
 
 /** Product catalog lookups and imports. */
@@ -597,9 +620,9 @@ export interface AdditionalFieldDefinition {
   code: string;
   label?: string;
   description?: string;
-  /** The entity the field hangs off, e.g. `OFFER`. */
+  /** The entity the field hangs off: `OFFER`, `ORDER_LINE` or `SHOP` on this operator. */
   entity?: string;
-  /** `REGEX`, `NUMERIC`, `STRING`, ... */
+  /** `REGEX`, `NUMERIC`, `STRING`, `BOOLEAN` or `TEXTAREA` on this operator. */
   type?: string;
   required?: boolean;
   /** False when the operator sets the value itself and a seller write is ignored. */
@@ -679,52 +702,157 @@ export interface ShippingApi {
 // Orders (OR11, OR12, OR21, OR23, OR24)
 // ---------------------------------------------------------------------------
 
-/** One line of an order. */
-export interface OrderLine {
-  order_line_id: string;
-  order_line_state?: string;
-  order_line_state_reason_code?: string | null;
-  offer_id?: number;
-  offer_sku?: string;
-  product_sku?: string;
-  product_title?: string;
-  quantity: number;
-  price?: number;
-  total_price?: number;
-  shipping_price?: number;
-  commission_fee?: number;
-  can_refund?: boolean;
+/** A tax line on an order line (`taxes`, `shipping_taxes`, `commission_taxes`). */
+export interface OrderTax {
+  /** e.g. `GST`, `PST`, `HST`, `ON_HST`. */
+  code: string;
+  amount?: number;
+  /** Present on `commission_taxes` lines. */
+  rate?: number;
+  /** e.g. `NONE`, `PROPORTIONAL_TO_AMOUNT`. Present on `taxes` / `shipping_taxes` lines. */
+  tax_calculation_rule?: string;
 }
 
-/** The customer on an order. Kept loose: the shape varies by operator configuration. */
+/** A postal address on an order (`customer.billing_address`, `customer.shipping_address`). */
+export interface OrderAddress {
+  civility?: string | null;
+  firstname?: string | null;
+  lastname?: string | null;
+  company?: string | null;
+  company_2?: string | null;
+  street_1?: string | null;
+  street_2?: string | null;
+  /** Shipping address only. */
+  additional_info?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zip_code?: string | null;
+  country?: string | null;
+  country_iso_code?: string | null;
+  phone?: string | null;
+  phone_secondary?: string | null;
+}
+
+/**
+ * One line of an order (VERIFIED 2026-10-10).
+ *
+ * The date fields are `null` until the matching transition happens; the live suite has seen
+ * the states `WAITING_ACCEPTANCE`, `SHIPPING` and `RECEIVED` (the full vocabulary beyond
+ * those is still an assumption).
+ */
+export interface OrderLine {
+  order_line_id: string;
+  order_line_index?: number;
+  order_line_state?: string;
+  order_line_state_reason_code?: string | null;
+  order_line_state_reason_label?: string | null;
+  offer_id?: number;
+  offer_sku?: string;
+  offer_state_code?: string;
+  product_sku?: string;
+  product_shop_sku?: string | null;
+  product_title?: string;
+  category_code?: string;
+  category_label?: string;
+  description?: string | null;
+  price_additional_info?: string | null;
+  quantity: number;
+  price?: number;
+  price_unit?: number;
+  total_price?: number;
+  shipping_price?: number;
+  shipping_price_unit?: number | null;
+  shipping_price_additional_unit?: number | null;
+  commission_fee?: number;
+  commission_rate_vat?: number;
+  commission_vat?: number;
+  total_commission?: number;
+  commission_taxes?: OrderTax[];
+  taxes?: OrderTax[];
+  shipping_taxes?: OrderTax[];
+  can_refund?: boolean;
+  cancelations?: unknown[];
+  refunds?: unknown[];
+  fees?: unknown[];
+  promotions?: unknown[];
+  created_date?: string;
+  last_updated_date?: string;
+  debited_date?: string | null;
+  shipped_date?: string | null;
+  received_date?: string | null;
+  /** This operator declares `language` (required) and `ehf-charge` for ORDER_LINE (AF01). */
+  order_line_additional_fields?: AdditionalField[];
+  product_medias?: { media_url: string; mime_type?: string | null; type?: string | null }[];
+  shipping_from?: { address?: OrderAddress | null; warehouse?: unknown } | null;
+}
+
+/** The customer on an order. Addresses are `null` until the order is accepted. */
 export interface OrderCustomer {
   customer_id?: string;
   firstname?: string;
   lastname?: string;
   civility?: string;
   locale?: string;
+  billing_address?: OrderAddress | null;
+  shipping_address?: OrderAddress | null;
 }
 
-/** An order as returned by the list and get endpoints. */
+/**
+ * An order as returned by the list and get endpoints (VERIFIED 2026-10-10).
+ *
+ * `orders.list` (OR11) returns the whole object. `orders.get` (OR12) returns a strict subset
+ * of it - no `delivery_date`, `shipping_deadline`, `shipping_carrier_code`, `references`,
+ * `fulfillment`, `can_cancel`, `currency_iso_code`, ... - so those fields are optional.
+ */
 export interface Order {
   order_id: string;
   commercial_id?: string;
   order_state?: string;
   order_state_reason_code?: string | null;
+  order_state_reason_label?: string | null;
   created_date?: string;
   last_updated_date?: string;
   acceptance_decision_date?: string | null;
   customer_debited_date?: string | null;
   can_cancel?: boolean;
+  can_shop_ship?: boolean;
   currency_iso_code?: string;
   price?: number;
   total_price?: number;
   total_commission?: number;
   shipping_price?: number;
   shipping_type_code?: string;
+  shipping_type_label?: string;
+  shipping_type_standard_code?: string;
+  shipping_zone_code?: string;
+  shipping_zone_label?: string;
   shipping_company?: string | null;
+  shipping_carrier_code?: string | null;
+  shipping_carrier_standard_code?: string | null;
   shipping_tracking?: string | null;
   shipping_tracking_url?: string | null;
+  /** ISO-8601 UTC: when the order must ship by. */
+  shipping_deadline?: string | null;
+  shipping_pudo_id?: string | null;
+  leadtime_to_ship?: number;
+  /** The delivery window promised to the customer. */
+  delivery_date?: { earliest?: string | null; latest?: string | null } | null;
+  fulfillment?: { center?: { code?: string } } | null;
+  references?: { order_reference_for_customer?: string | null } | null;
+  payment_type?: string | null;
+  /** e.g. `PAY_ON_ACCEPTANCE`. */
+  payment_workflow?: string;
+  /** e.g. `TAX_EXCLUDED`. */
+  order_tax_mode?: string;
+  customer_notification_email?: string | null;
+  customer_directly_pays_seller?: boolean;
+  fully_refunded?: boolean;
+  has_customer_message?: boolean;
+  has_incident?: boolean;
+  has_invoice?: boolean;
+  channel?: string | null;
+  quote_id?: string | null;
+  order_additional_fields?: AdditionalField[];
   customer?: OrderCustomer;
   order_lines: OrderLine[];
 }
