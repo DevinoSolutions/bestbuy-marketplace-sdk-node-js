@@ -12,7 +12,7 @@ catalog metadata, shipping reference data and orders.
 > **Reads are live-verified; writes are verified only where the contracts doc says so.** Every
 > read endpoint was called against a real Best Buy Canada seller account and its response
 > shape recorded in
-> [`docs/research/bestbuy-api-contracts.md`](docs/research/bestbuy-api-contracts.md). Of the
+> [`docs/research/bestbuy-api-contracts.md`](https://github.com/DevinoSolutions/bestbuy-marketplace-sdk-node-js/blob/main/docs/research/bestbuy-api-contracts.md). Of the
 > mutating endpoints, the offer batch (`offers.update`, OF24) and the product import
 > (`products.importFile`, P41) are marked verified from real, owner-authorized ops writes; the
 > offer file import (OF01) and the order writes (accept, ship, tracking) are still marked
@@ -51,7 +51,7 @@ for await (const offer of client.offers.listAll({ max: 100 })) {
 ```
 
 Response objects use Mirakl's own snake_case field names; method parameters use camelCase.
-[ADR 0001](docs/adr/0001-thin-fetch-client.md) explains why.
+[ADR 0001](https://github.com/DevinoSolutions/bestbuy-marketplace-sdk-node-js/blob/main/docs/adr/0001-thin-fetch-client.md) explains why.
 
 ### Errors
 
