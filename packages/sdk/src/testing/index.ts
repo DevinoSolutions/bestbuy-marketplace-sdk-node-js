@@ -2,7 +2,7 @@
  * Deterministic mock `fetch` for testing integrations without network access. Matches routes
  * by method + path pattern, records each call (with parsed JSON body and headers), and
  * returns `Response` objects built from the route's reply. Exported from
- * `@devino/bestbuy-marketplace-sdk/testing`.
+ * `@joinmarka/bestbuy/testing`.
  */
 
 /** A single recorded request as observed by the mock. */

@@ -20,7 +20,7 @@ interface PackageSpec {
 const packages: PackageSpec[] = [
   {
     dir: "packages/sdk",
-    name: "@devino/bestbuy-marketplace-sdk",
+    name: "@joinmarka/bestbuy",
     entries: {
       ".": [
         "createBestBuyClient",
