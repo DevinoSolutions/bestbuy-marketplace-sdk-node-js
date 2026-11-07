@@ -4,7 +4,8 @@ A thin, typed, transport-independent client for the **Best Buy Canada Marketplac
 API — a [Mirakl](https://www.mirakl.com/) Marketplace Platform instance. Offers, products,
 catalog metadata, shipping reference data and orders.
 
-- Package: `@devino/bestbuy-marketplace-sdk`
+- Package: `@joinmarka/bestbuy`
+- Part of [Marka](https://joinmarka.com). This is an unofficial community SDK and is not affiliated with, endorsed by, or sponsored by Best Buy.
 - Runtime: Node >= 22.12, ESM only
 - Runtime dependencies: `zod` (that is the whole list)
 
@@ -22,13 +23,13 @@ catalog metadata, shipping reference data and orders.
 ## Install
 
 ```bash
-npm install @devino/bestbuy-marketplace-sdk
+npm install @joinmarka/bestbuy
 ```
 
 ## Quick start
 
 ```ts
-import { createBestBuyClient } from "@devino/bestbuy-marketplace-sdk";
+import { createBestBuyClient } from "@joinmarka/bestbuy";
 
 const client = createBestBuyClient({
   apiKey: process.env.BESTBUY_API_KEY!, // raw Mirakl key, no "Bearer" prefix
@@ -55,7 +56,7 @@ Response objects use Mirakl's own snake_case field names; method parameters use 
 ### Errors
 
 ```ts
-import { BestBuyApiError, BestBuyNetworkError } from "@devino/bestbuy-marketplace-sdk";
+import { BestBuyApiError, BestBuyNetworkError } from "@joinmarka/bestbuy";
 
 try {
   await client.orders.list({ orderStateCodes: ["WAITING_ACCEPTANCE"] });
@@ -78,7 +79,7 @@ Writes are the minority of this SDK and they are marked as such everywhere:
 `orders.setTracking`. The full classification lives in one table, in code:
 
 ```ts
-import { OPERATIONS, writeOperationNames } from "@devino/bestbuy-marketplace-sdk";
+import { OPERATIONS, writeOperationNames } from "@joinmarka/bestbuy";
 
 writeOperationNames(); // ["offers.importFile", "offers.update", "orders.accept", ...]
 OPERATIONS["offers.update"]; // { code: "OF24", method: "POST", path: "/api/offers", access: "write" }
@@ -99,7 +100,7 @@ if (status.has_error_report) {
 ## Testing without a network
 
 ```ts
-import { createMockFetch } from "@devino/bestbuy-marketplace-sdk/testing";
+import { createMockFetch } from "@joinmarka/bestbuy/testing";
 
 const mock = createMockFetch([
   {
@@ -161,7 +162,7 @@ BESTBUY_LIVE_TESTS=true npm run test:live   # READ-ONLY, needs .env
 ## Repository layout
 
 ```
-packages/sdk/          @devino/bestbuy-marketplace-sdk
+packages/sdk/          @joinmarka/bestbuy
   src/operations.ts    every endpoint + READ/WRITE classification (source of truth)
   src/client/          config validation, HTTP layer
   src/errors/          error hierarchy, upstream error parsing

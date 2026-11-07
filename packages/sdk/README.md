@@ -1,4 +1,6 @@
-# @devino/bestbuy-marketplace-sdk
+# @joinmarka/bestbuy
+
+> Part of [Marka](https://joinmarka.com). This is an unofficial community SDK and is not affiliated with, endorsed by, or sponsored by Best Buy.
 
 Thin, typed, transport-independent client for the **Best Buy Canada Marketplace** seller API
 (a Mirakl Marketplace Platform instance). Offers, products, catalog metadata, shipping
@@ -11,11 +13,11 @@ Node >= 22.12, ESM only. One runtime dependency: `zod`.
 > repository's `docs/research/bestbuy-api-contracts.md`.
 
 ```bash
-npm install @devino/bestbuy-marketplace-sdk
+npm install @joinmarka/bestbuy
 ```
 
 ```ts
-import { createBestBuyClient } from "@devino/bestbuy-marketplace-sdk";
+import { createBestBuyClient } from "@joinmarka/bestbuy";
 
 const client = createBestBuyClient({ apiKey: process.env.BESTBUY_API_KEY! });
 
@@ -30,7 +32,7 @@ Reads are safe; `offers.update`, `offers.importFile`, `products.importFile`, `or
 `writeOperationNames()` expose that classification programmatically.
 
 Testing helpers (a route-driven mock `fetch`) live at
-`@devino/bestbuy-marketplace-sdk/testing`.
+`@joinmarka/bestbuy/testing`.
 
 Full documentation, safety rules and the endpoint contracts are in the repository README.
 

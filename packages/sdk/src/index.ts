@@ -1,11 +1,11 @@
 /**
- * `@devino/bestbuy-marketplace-sdk` — transport-independent TypeScript SDK for the Best Buy
+ * `@joinmarka/bestbuy` — transport-independent TypeScript SDK for the Best Buy
  * Canada Marketplace seller API, a Mirakl Marketplace Platform instance.
  *
  * The public surface is defined by `docs/research/sdk-public-api.md`; every wire shape it
  * relies on is catalogued in `docs/research/bestbuy-api-contracts.md` and is an
  * **ASSUMPTION** until live-verified. Testing helpers are exported separately from
- * `@devino/bestbuy-marketplace-sdk/testing`.
+ * `@joinmarka/bestbuy/testing`.
  */
 
 // Public types (interfaces, unions) — all type-only.

@@ -1,4 +1,4 @@
-# SDK public API — `@devino/bestbuy-marketplace-sdk`
+# SDK public API — `@joinmarka/bestbuy`
 
 This document is the **binding contract** for the package's public surface. Anything not
 listed here is internal and may change without notice. A future MCP server package consumes
@@ -10,10 +10,10 @@ when a public signature references an undocumented type.
 
 ## Entry points
 
-| Import specifier                          | Contents                        |
-| ----------------------------------------- | ------------------------------- |
-| `@devino/bestbuy-marketplace-sdk`         | client factory, types, errors   |
-| `@devino/bestbuy-marketplace-sdk/testing` | `createMockFetch` and its types |
+| Import specifier             | Contents                        |
+| ---------------------------- | ------------------------------- |
+| `@joinmarka/bestbuy`         | client factory, types, errors   |
+| `@joinmarka/bestbuy/testing` | `createMockFetch` and its types |
 
 ## Factory
 

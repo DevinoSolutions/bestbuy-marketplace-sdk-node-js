@@ -1,6 +1,6 @@
 # CLAUDE.md — agent instructions for this repo
 
-TypeScript monorepo: `packages/sdk` (`@devino/bestbuy-marketplace-sdk`), npm workspaces,
+TypeScript monorepo: `packages/sdk` (`@joinmarka/bestbuy`), npm workspaces,
 ESM/NodeNext, Node >= 22.12. An MCP server package may be added later under `packages/`.
 
 Target API: **Best Buy Canada Marketplace**, a Mirakl Marketplace Platform (MMP) instance.
