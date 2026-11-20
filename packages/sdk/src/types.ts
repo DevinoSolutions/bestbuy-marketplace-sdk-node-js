@@ -943,9 +943,11 @@ export interface InboxMessage {
     organization_details?: Record<string, unknown> | null;
   } | null;
   to?: InboxParticipant[];
+  /** Files attached to the message (VERIFIED live 2026-11-20 on an M10 thread). Fetch one with `inbox.downloadAttachment(id)`. */
+  attachments?: { id: string; name?: string | null; size?: number | null }[];
 }
 
-/** A message thread (M11). */
+/** A message thread (M10 returns one; M11 returns a page of them). */
 export interface InboxThread {
   id: string;
   /** Seen: `{ type: "FREE_TEXT", value: "…" }`. */
@@ -990,12 +992,14 @@ export interface InboxReplyInput {
 }
 
 /**
- * What `POST /api/inbox/threads/{thread_id}/message` answers (HTTP 201 live). Only the message
- * id is relied upon; every other field is passed through untouched.
+ * What `POST /api/inbox/threads/{thread_id}/message` answers: HTTP 201 with
+ * `{ message_id, thread_id }` (VERIFIED live 2026-11-20). Parsed leniently; any extra field is
+ * passed through untouched.
  */
 export interface InboxReplyReceipt {
-  /** Id of the message just posted. */
-  id?: string | number | null;
+  /** Id of the message just posted. It appears as `id` on `inbox.thread(...).messages`. */
+  message_id?: string | null;
+  thread_id?: string | null;
   [key: string]: unknown;
 }
 
@@ -1099,6 +1103,27 @@ export interface OrderAddress {
  * the states `WAITING_ACCEPTANCE`, `SHIPPING` and `RECEIVED` (the full vocabulary beyond
  * those is still an assumption).
  */
+/** A refund on an order line, as OR11 reports it (VERIFIED live 2026-11-20). */
+export interface OrderLineRefund {
+  id?: string | null;
+  order_refund_id?: string | null;
+  /** `WAITING_REFUND_PAYMENT` right after an OR28 refund. */
+  state?: string | null;
+  refund_state?: string | null;
+  quantity?: number | null;
+  reason_code?: string | null;
+  amount?: number | null;
+  shipping_amount?: number | null;
+  created_date?: string | null;
+  [key: string]: unknown;
+}
+
+/**
+ * One line of an order. `taxes`, `shipping_taxes`, `refunds`, `fees`, `cancelations`,
+ * `promotions`, `commission_taxes` and the price breakdowns are returned by OR11
+ * (`orders.list`) but are ABSENT from OR12 (`orders.get`): read an order you mean to refund
+ * with `orders.list({ orderIds })`.
+ */
 export interface OrderLine {
   order_line_id: string;
   order_line_index?: number;
@@ -1131,7 +1156,8 @@ export interface OrderLine {
   shipping_taxes?: OrderTax[];
   can_refund?: boolean;
   cancelations?: unknown[];
-  refunds?: unknown[];
+  /** Present on OR11 (`orders.list`) only, never on `orders.get` (OR12). */
+  refunds?: OrderLineRefund[];
   fees?: unknown[];
   promotions?: unknown[];
   created_date?: string;
@@ -1218,6 +1244,11 @@ export interface Order {
 
 /** Filters for `orders.list`. */
 export interface OrderListParams extends PageParams {
+  /**
+   * Only these orders (`order_ids`, comma-joined). This is the way to read ONE order with its
+   * line taxes, shipping taxes and refunds, which `orders.get` does not return.
+   */
+  orderIds?: readonly string[];
   /** Order state codes to include, e.g. `WAITING_ACCEPTANCE`. */
   orderStateCodes?: readonly string[];
   /** Only orders created at or after this instant. */
@@ -1293,18 +1324,30 @@ export interface OrderRefundInput {
   refunds: readonly OrderRefundLineInput[];
 }
 
-/** A refund the platform created. **ASSUMPTION**: only the keys below are expected, all optional. */
+/**
+ * A refund OR28 created (VERIFIED live 2026-11-20). Note the ids are `refund_id` and
+ * `order_refund_id`, not `id`, and the response carries NO state: the refund's state
+ * (`WAITING_REFUND_PAYMENT` right after creation) is on the order line's `refunds[]` in OR11.
+ * Every key is optional and any extra key is passed through.
+ */
 export interface OrderRefund {
-  id?: string | number | null;
+  refund_id?: string | null;
+  order_refund_id?: string | null;
   amount?: number | string | null;
   reason_code?: string | null;
   order_line_id?: string | null;
-  state?: string | null;
   quantity?: number | null;
+  currency_iso_code?: string | null;
+  shipping_amount?: number | string | null;
+  excluded_from_shipment?: boolean | null;
+  fees?: unknown[] | null;
+  taxes?: { code?: string; amount?: number | string | null; [key: string]: unknown }[] | null;
+  shipping_taxes?:
+    { code?: string; amount?: number | string | null; [key: string]: unknown }[] | null;
   [key: string]: unknown;
 }
 
-/** Result of `orders.refund`. **ASSUMPTION**: shape from Mirakl's OR28 reference. */
+/** Result of `orders.refund` (VERIFIED live 2026-11-20). */
 export interface OrderRefundResult {
   order_tax_mode?: string | null;
   refunds: OrderRefund[];
@@ -1317,7 +1360,12 @@ export interface OrdersApi {
   list(params?: OrderListParams, options?: RequestOptions): Promise<Page<Order>>;
   /** `OR11` — pages through every matching order. */
   listAll(params?: OrderListParams, options?: RequestOptions): AsyncIterableIterator<Order>;
-  /** `OR12` — `GET /api/orders/{order_id}`. */
+  /**
+   * `OR12` — `GET /api/orders/{order_id}`: a REDUCED view of the order. Its lines carry no
+   * `taxes`, `shipping_taxes`, `refunds`, `fees`, `cancelations` or `promotions`, and the order
+   * carries no `currency_iso_code`, `order_taxes`, `order_refunds` or `fully_refunded` (VERIFIED
+   * live 2026-11-20). To prepare or check a refund use `list({ orderIds: [id] })` (OR11).
+   */
   get(orderId: string, options?: RequestOptions): Promise<Order>;
   /** `OR21` — `PUT /api/orders/{order_id}/accept`. **WRITE**. */
   accept(orderId: string, input: OrderAcceptInput, options?: RequestOptions): Promise<void>;
@@ -1328,8 +1376,25 @@ export interface OrdersApi {
   /**
    * `OR28` — `PUT /api/orders/refund`. **WRITE**: money goes back to the customer and a refund
    * cannot be undone. Tax amounts are serialised as strings with two decimals.
+   *
+   * Upstream quirk (VERIFIED live 2026-11-20): when the order line has shipping taxes, ALL of
+   * them must be sent in `shippingTaxes` even when shipping is 0 (omitting them answers HTTP 400
+   * "Invalid value for field 'refunds[0].shippingPriceTaxAmounts'. All shipping taxes on order
+   * line must be specified"), and `taxes` must carry the line's tax codes, zeros included.
+   * `buildFullRefund` does that copying for you.
    */
   refund(input: OrderRefundInput, options?: RequestOptions): Promise<OrderRefundResult>;
+  /**
+   * Pure helper, no request: builds the `orders.refund` input that refunds one whole line,
+   * copying `quantity`, `price`, `shipping_price` and EVERY tax and shipping tax of the line
+   * (zero amounts included, which OR28 requires). `order` must come from
+   * `orders.list({ orderIds })` (OR11): an `orders.get` order has no taxes and is refused.
+   * Also refused: a line the order does not contain, a line whose `can_refund` is `false`, and
+   * an order without `currency_iso_code`. The order's own `order_tax_mode` is passed through.
+   * Verified live only for a quantity-1 line in `TAX_EXCLUDED` mode, where `price` equalled the
+   * refunded amount.
+   */
+  buildFullRefund(order: Order, orderLineId: string, reasonCode: string): OrderRefundInput;
 }
 
 // ---------------------------------------------------------------------------

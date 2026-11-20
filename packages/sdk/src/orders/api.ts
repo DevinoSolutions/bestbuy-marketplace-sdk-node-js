@@ -5,6 +5,7 @@ import type {
   OrderRefundInput,
   OrderRefundResult,
   OrderRefundTax,
+  OrderTax,
   OrderTrackingInput,
   OrdersApi,
   Page,
@@ -31,6 +32,8 @@ import { formatMiraklDate } from "../dates.js";
 
 function listQuery(params: OrderListParams | undefined, page: ResolvedPageParams) {
   const query: Record<string, QueryValue> = { max: page.max, offset: page.offset };
+  const orderIds = joinList(params?.orderIds);
+  if (orderIds !== undefined) query.order_ids = orderIds;
   const states = joinList(params?.orderStateCodes);
   if (states !== undefined) query.order_state_codes = states;
   if (params?.startDate !== undefined) query.start_date = formatMiraklDate(params.startDate);
@@ -39,6 +42,12 @@ function listQuery(params: OrderListParams | undefined, page: ResolvedPageParams
   }
   if (params?.customerDebited !== undefined) query.customer_debited = params.customerDebited;
   return query;
+}
+
+function refundSourceError(path: string, message: string): BestBuyValidationError {
+  return new BestBuyValidationError("Invalid argument for orders.buildFullRefund", {
+    issues: [{ path, message, code: "invalid_value" }],
+  });
 }
 
 const TAX_MODES: readonly string[] = ["TAX_INCLUDED", "TAX_EXCLUDED"];
@@ -119,6 +128,60 @@ export function createOrdersApi(http: BestBuyHttpClient): OrdersApi {
     async ship(orderId: string, options?: RequestOptions): Promise<void> {
       const id = requireNonEmptyString(orderId, "orderId", "orders.ship");
       await http.requestJson({ operation: "orders.ship", pathParams: { order_id: id } }, options);
+    },
+
+    // PURE: no request. Builds the OR28 input that refunds one whole order line.
+    buildFullRefund(order: Order, orderLineId: string, reasonCode: string): OrderRefundInput {
+      const ctx = "orders.buildFullRefund";
+      const lineId = requireNonEmptyString(orderLineId, "orderLineId", ctx);
+      const reason = requireNonEmptyString(reasonCode, "reasonCode", ctx);
+      const line = order?.order_lines?.find((candidate) => candidate.order_line_id === lineId);
+      if (line === undefined) throw refundSourceError("orderLineId", "is not a line of this order");
+      if (order.currency_iso_code === undefined || order.currency_iso_code === "") {
+        throw refundSourceError(
+          "order.currency_iso_code",
+          "is missing: read the order with orders.list({ orderIds }), orders.get omits it",
+        );
+      }
+      if (line.can_refund === false) {
+        throw refundSourceError("orderLineId", "cannot be refunded (can_refund is false)");
+      }
+      if (line.taxes === undefined || line.shipping_taxes === undefined) {
+        throw refundSourceError(
+          "order.order_lines.taxes",
+          "taxes and shipping_taxes are missing: read the order with orders.list({ orderIds }), " +
+            "orders.get does not return them",
+        );
+      }
+      if (line.price === undefined || line.shipping_price === undefined) {
+        throw refundSourceError("order.order_lines.price", "price and shipping_price are required");
+      }
+      const copyTaxes = (taxes: readonly OrderTax[], path: string): OrderRefundTax[] =>
+        taxes.map((tax, index) => {
+          if (tax.amount === undefined) {
+            throw refundSourceError(`${path}[${index}].amount`, "is missing");
+          }
+          return { code: tax.code, amount: tax.amount };
+        });
+
+      const input: OrderRefundInput = {
+        refunds: [
+          {
+            orderLineId: line.order_line_id,
+            quantity: line.quantity,
+            amount: line.price,
+            currencyIsoCode: order.currency_iso_code,
+            reasonCode: reason,
+            shippingAmount: line.shipping_price,
+            // Every code, zero amounts included: OR28 answers 400 when one is left out.
+            taxes: copyTaxes(line.taxes, "taxes"),
+            shippingTaxes: copyTaxes(line.shipping_taxes, "shipping_taxes"),
+          },
+        ],
+      };
+      return order.order_tax_mode === "TAX_INCLUDED" || order.order_tax_mode === "TAX_EXCLUDED"
+        ? { orderTaxMode: order.order_tax_mode, ...input }
+        : input;
     },
 
     // WRITE. Refunds money to the customer (OR28); irreversible.

@@ -1,0 +1,97 @@
+{
+  "order_tax_mode": "TAX_EXCLUDED",
+  "refunds": [
+    {
+      "amount": 120.5,
+      "reason_code": "44",
+      "order_line_id": "100000001",
+      "quantity": 1,
+      "amount_breakdown": {
+        "parts": [
+          {
+            "amount": 120.5,
+            "commissionable": true,
+            "debitable_from_customer": true,
+            "payable_to_shop": true
+          }
+        ]
+      },
+      "currency_iso_code": "CAD",
+      "excluded_from_shipment": false,
+      "fees": [],
+      "order_refund_id": "22222222-2222-4222-8222-222222222222",
+      "refund_id": "2000001",
+      "shipping_amount": 0,
+      "shipping_amount_breakdown": {
+        "parts": [
+          {
+            "amount": 0,
+            "commissionable": true,
+            "debitable_from_customer": true,
+            "payable_to_shop": true
+          }
+        ]
+      },
+      "shipping_taxes": [
+        {
+          "amount": 0,
+          "amount_breakdown": {
+            "parts": [
+              {
+                "amount": 0,
+                "commissionable": false,
+                "debitable_from_customer": true,
+                "payable_to_shop": true
+              }
+            ]
+          },
+          "code": "GST"
+        },
+        {
+          "amount": 0,
+          "amount_breakdown": {
+            "parts": [
+              {
+                "amount": 0,
+                "commissionable": false,
+                "debitable_from_customer": true,
+                "payable_to_shop": false
+              }
+            ]
+          },
+          "code": "PST"
+        }
+      ],
+      "taxes": [
+        {
+          "amount": 6.03,
+          "amount_breakdown": {
+            "parts": [
+              {
+                "amount": 6.03,
+                "commissionable": false,
+                "debitable_from_customer": true,
+                "payable_to_shop": true
+              }
+            ]
+          },
+          "code": "GST"
+        },
+        {
+          "amount": 0,
+          "amount_breakdown": {
+            "parts": [
+              {
+                "amount": 0,
+                "commissionable": false,
+                "debitable_from_customer": true,
+                "payable_to_shop": false
+              }
+            ]
+          },
+          "code": "PST"
+        }
+      ]
+    }
+  ]
+}

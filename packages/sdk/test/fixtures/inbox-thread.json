@@ -1,81 +1,151 @@
 {
+  "id": "11111111-1111-4111-8111-111111111111",
+  "topic": {
+    "type": "FREE_TEXT",
+    "value": "Returns & Exchanges"
+  },
+  "entities": [
+    {
+      "id": "100000001-A",
+      "type": "MMP_ORDER",
+      "label": "100000001-A"
+    }
+  ],
   "authorized_participants": [
     {
-      "display_name": "Example Customer",
-      "id": "customer-1",
-      "type": "CUSTOMER"
+      "id": "33333333-3333-4333-8333-333333333333",
+      "type": "CUSTOMER",
+      "display_name": "Example Customer"
     },
     {
-      "display_name": "Example Operator",
-      "type": "OPERATOR"
+      "type": "OPERATOR",
+      "display_name": "Operator"
     },
     {
-      "display_name": "Example Seller",
       "id": "1234",
-      "type": "SHOP"
+      "type": "SHOP",
+      "display_name": "Example Seller"
     }
   ],
   "current_participants": [
     {
-      "display_name": "Example Customer",
-      "id": "customer-1",
-      "type": "CUSTOMER"
+      "id": "33333333-3333-4333-8333-333333333333",
+      "type": "CUSTOMER",
+      "display_name": "Example Customer"
     },
     {
-      "display_name": "Example Seller",
       "id": "1234",
-      "type": "SHOP"
+      "type": "SHOP",
+      "display_name": "Example Seller"
     }
   ],
-  "date_created": "2026-01-01T00:00:00Z",
-  "date_updated": "2026-01-02T00:00:00Z",
-  "entities": [
-    {
-      "id": "ORDER-1",
-      "label": "ORDER-1",
-      "type": "MMP_ORDER"
-    }
-  ],
-  "id": "thread-1",
+  "date_created": "2026-01-01T00:00:00.000Z",
+  "date_updated": "2026-01-04T00:00:00.000Z",
   "metadata": {
-    "last_message_date": "2026-01-02T00:00:00Z",
+    "last_message_date": "2026-01-04T00:00:00.000Z",
+    "shop_reply_needed_since": null,
+    "total_count": 4,
     "last_sender": {
-      "display_name": "Example Seller",
+      "display_name": "seller@example.com",
       "organization_details": {
         "display_name": "Example Seller",
         "id": "1234",
         "type": "SHOP"
       },
       "type": "SHOP_USER"
-    },
-    "shop_reply_needed_since": null,
-    "total_count": 2
+    }
   },
   "messages": [
     {
-      "body": "Example message body",
-      "date_created": "2026-01-02T00:00:00Z",
+      "id": "44444444-4444-4444-8444-4444444444a1",
+      "body": "Product Name: Example Product<br/>Date Received: 01/01/2026<br/>Original Packaging: Yes<br/>Opened: No<br/><br/>Return Reason: Example return reason text.",
+      "date_created": "2026-01-01T00:00:00.000Z",
       "from": {
-        "display_name": "Example Seller",
+        "type": "CUSTOMER_USER",
+        "display_name": "Example Customer",
+        "organization_details": {
+          "display_name": "Example Customer",
+          "id": "33333333-3333-4333-8333-333333333333",
+          "type": "CUSTOMER"
+        }
+      },
+      "to": [
+        {
+          "id": "1234",
+          "type": "SHOP",
+          "display_name": "Example Seller"
+        }
+      ]
+    },
+    {
+      "id": "44444444-4444-4444-8444-4444444444a2",
+      "body": "Hi,\n\nExample shop reply accepting the return.\n\nPlease ship it back to:\n\nExample Seller\n123 Example Street\nExampleville, ON A1A 1A1\nCanada\n\nThanks,\nExample Seller",
+      "date_created": "2026-01-02T00:00:00.000Z",
+      "from": {
+        "type": "SHOP_USER",
+        "display_name": "seller@example.com",
         "organization_details": {
           "display_name": "Example Seller",
           "id": "1234",
           "type": "SHOP"
-        },
-        "type": "SHOP_USER"
+        }
       },
-      "id": "message-1",
       "to": [
         {
+          "id": "33333333-3333-4333-8333-333333333333",
+          "type": "CUSTOMER",
+          "display_name": "Example Customer"
+        }
+      ]
+    },
+    {
+      "id": "44444444-4444-4444-8444-4444444444a3",
+      "body": "<html><head>\n\n</head>\n<body dir=\"ltr\">\n<div class=\"example\" style=\"font-family: sans-serif;\">\nDear Example Seller,</div>\n<div class=\"example\">\n<br>\n</div>\n<div class=\"example\">\nExample customer message with an inline image.</div>\n<div class=\"example\">\n<img style=\"max-width: 885px;\" size=\"1024\" src=\"cid:55555555-5555-4555-8555-555555555555\"></div>\n<div class=\"example\">\nCheers,</div>\n<div class=\"example\">\nExample</div>\n<div id=\"appendonsend\"></div>\n<hr style=\"display:inline-block;width:98%\" tabindex=\"-1\">\n</body></html>",
+      "date_created": "2026-01-03T00:00:00.000Z",
+      "from": {
+        "type": "CUSTOMER_USER",
+        "display_name": "Example Customer",
+        "organization_details": {
           "display_name": "Example Customer",
-          "id": "customer-1",
+          "id": "33333333-3333-4333-8333-333333333333",
           "type": "CUSTOMER"
+        }
+      },
+      "to": [
+        {
+          "id": "1234",
+          "type": "SHOP",
+          "display_name": "Example Seller"
+        }
+      ],
+      "attachments": [
+        {
+          "id": "66666666-6666-4666-8666-666666666666",
+          "name": "image.png",
+          "size": 1024
+        }
+      ]
+    },
+    {
+      "id": "44444444-4444-4444-8444-444444444444",
+      "body": "Hi Example,\n\nExample shop reply confirming the refund.\n\nThanks again,\n\nExample Seller",
+      "date_created": "2026-01-04T00:00:00.000Z",
+      "from": {
+        "type": "SHOP_USER",
+        "display_name": "seller@example.com",
+        "organization_details": {
+          "display_name": "Example Seller",
+          "id": "1234",
+          "type": "SHOP"
+        }
+      },
+      "to": [
+        {
+          "id": "33333333-3333-4333-8333-333333333333",
+          "type": "CUSTOMER",
+          "display_name": "Example Customer"
         }
       ]
     }
-  ],
-  "topic": {
-    "type": "FREE_TEXT",
-    "value": "Example topic"
-  }
+  ]
 }
