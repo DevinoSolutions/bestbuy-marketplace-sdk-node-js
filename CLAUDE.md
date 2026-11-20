@@ -9,7 +9,8 @@ Target API: **Best Buy Canada Marketplace**, a Mirakl Marketplace Platform (MMP)
 
 1. **The live test suite is READ-ONLY.** Files in `packages/sdk/test/live/` hit the REAL
    Best Buy seller account. Never add a mutating call (`offers.update`, `offers.importFile`,
-   `products.importFile`, `orders.accept`, `orders.ship`, `orders.setTracking`, any raw
+   `products.importFile`, `orders.accept`, `orders.ship`, `orders.setTracking`, `orders.refund`,
+   `inbox.reply`, any raw
    POST/PUT/DELETE). Enforced by `npm run check:live-readonly` in CI. That guard derives its
    forbidden list from the `access: "write"` rows of `packages/sdk/src/operations.ts` — do not
    weaken it; classify new endpoints correctly in `operations.ts` and the guard follows.

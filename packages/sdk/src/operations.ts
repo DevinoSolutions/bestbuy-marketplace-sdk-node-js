@@ -160,6 +160,24 @@ export const OPERATIONS = {
   },
 
   "inbox.threads": { code: "M11", method: "GET", path: "/api/inbox/threads", access: "read" },
+  "inbox.thread": {
+    code: "M10",
+    method: "GET",
+    path: "/api/inbox/threads/{thread_id}",
+    access: "read",
+  },
+  "inbox.reply": {
+    code: "M12",
+    method: "POST",
+    path: "/api/inbox/threads/{thread_id}/message",
+    access: "write",
+  },
+  "inbox.downloadAttachment": {
+    code: "M13",
+    method: "GET",
+    path: "/api/inbox/threads/{attachment_id}/download",
+    access: "read",
+  },
 
   "orders.list": { code: "OR11", method: "GET", path: "/api/orders", access: "read" },
   "orders.get": { code: "OR12", method: "GET", path: "/api/orders/{order_id}", access: "read" },
@@ -179,6 +197,12 @@ export const OPERATIONS = {
     code: "OR23",
     method: "PUT",
     path: "/api/orders/{order_id}/tracking",
+    access: "write",
+  },
+  "orders.refund": {
+    code: "OR28",
+    method: "PUT",
+    path: "/api/orders/refund",
     access: "write",
   },
 } as const satisfies Record<string, OperationSpec>;

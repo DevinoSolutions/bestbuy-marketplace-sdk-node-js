@@ -7,9 +7,11 @@ describe("operation table", () => {
     // mutating surface means changing this test in the same change — on purpose.
     expect(writeOperationNames()).toEqual(
       [
+        "inbox.reply",
         "offers.importFile",
         "offers.update",
         "orders.accept",
+        "orders.refund",
         "orders.ship",
         "orders.setTracking",
         "products.importFile",

@@ -109,8 +109,12 @@ interface BestBuyClient {
 ### `inbox`
 
 - `threads(params?, options?): Promise<InboxThreadList>` — READ (M11). Seek-paginated
-  (`next_page_token`); `withMessages` includes customer-written message bodies. No reply method
-  exists on purpose
+  (`next_page_token`); `withMessages` includes customer-written message bodies
+- `thread(threadId, options?): Promise<InboxThread>` — READ (M10); read a thread back after a reply
+- `reply(threadId, input, options?): Promise<InboxReplyReceipt>` — **WRITE** (M12). Multipart
+  `message_input` JSON part (`{ body, to }`, `to` defaults to a `CUSTOMER`); the message reaches a
+  real customer and cannot be recalled. No attachments
+- `downloadAttachment(attachmentId, options?): Promise<Uint8Array>` — READ (M13); raw bytes
 
 ### `platform`
 
@@ -126,6 +130,10 @@ interface BestBuyClient {
 - `accept(orderId, input, options?): Promise<void>` — **WRITE** (OR21)
 - `ship(orderId, options?): Promise<void>` — **WRITE** (OR24)
 - `setTracking(orderId, input, options?): Promise<void>` — **WRITE** (OR23)
+- `refund(input, options?): Promise<OrderRefundResult>` — **WRITE** (OR28). `input` is
+  `{ orderTaxMode?, refunds: [{ orderLineId, quantity, amount, currencyIsoCode, reasonCode,
+shippingAmount?, taxes?, shippingTaxes?, excludedFromShipment?, fees?, taxLegalNotice? }] }`;
+  tax amounts go on the wire as strings with two decimals. Irreversible
 
 ## Naming convention
 

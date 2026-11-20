@@ -15,7 +15,8 @@ catalog metadata, shipping reference data and orders.
 > [`docs/research/bestbuy-api-contracts.md`](https://github.com/DevinoSolutions/bestbuy-marketplace-sdk-node-js/blob/main/docs/research/bestbuy-api-contracts.md). Of the
 > mutating endpoints, the offer batch (`offers.update`, OF24) and the product import
 > (`products.importFile`, P41) are marked verified from real, owner-authorized ops writes; the
-> offer file import (OF01) and the order writes (accept, ship, tracking) are still marked
+> inbox reply request shape (`inbox.reply`, M12) is marked verified from a live reply; the
+> offer file import (OF01) and the order writes (accept, ship, tracking, refund) are still marked
 > **ASSUMPTION**, derived from Mirakl's standard seller API — the operator customizes paths,
 > field names and codes, so treat the first real use of one of those as a verification step,
 > not as a regression test.
@@ -76,7 +77,7 @@ log line or `toJSON()` payload can carry it — even if the upstream echoes the 
 
 Writes are the minority of this SDK and they are marked as such everywhere:
 `offers.update`, `offers.importFile`, `products.importFile`, `orders.accept`, `orders.ship`,
-`orders.setTracking`. The full classification lives in one table, in code:
+`orders.setTracking`, `orders.refund` and `inbox.reply` (a message to a real customer). The full classification lives in one table, in code:
 
 ```ts
 import { OPERATIONS, writeOperationNames } from "@joinmarka/bestbuy";
@@ -141,7 +142,8 @@ CI.
    committed, and `npm run check:secrets` scans the working tree (not just the index) for
    credential-shaped values.
 4. **`REPLACE` import mode is never a default.** It is the Mirakl full-overwrite mode.
-5. **Order writes are irreversible.** Refusing a line cancels it; shipping cannot be undone.
+5. **Order writes are irreversible.** Refusing a line cancels it; shipping cannot be undone; a
+   refund (`orders.refund`) cannot be taken back and a reply (`inbox.reply`) cannot be recalled.
 
 ## Commands
 

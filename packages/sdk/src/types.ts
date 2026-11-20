@@ -902,7 +902,7 @@ export interface ShippingApi {
 }
 
 // ---------------------------------------------------------------------------
-// Inbox (M11) and platform (V01, PC01, L01) - read-only
+// Inbox (M10, M11, M12, M13) and platform (V01, PC01, L01)
 // ---------------------------------------------------------------------------
 
 /** Filters for `inbox.threads`. */
@@ -973,10 +973,56 @@ export interface InboxThreadList {
   previous_page_token?: string | null;
 }
 
-/** Read-only message inbox. */
+/** One recipient of a reply. */
+export interface InboxReplyRecipient {
+  /** Mirakl recipient kind. Seen live: `CUSTOMER`. Others in Mirakl's reference: `OPERATOR`, `SHOP`. */
+  type: string;
+  /** Optional participant id; `CUSTOMER` replies on an order thread work without one. */
+  id?: string;
+}
+
+/** Payload for `inbox.reply`. */
+export interface InboxReplyInput {
+  /** The message text. Sent to a real customer: nothing is added, trimmed or templated. */
+  body: string;
+  /** Recipients. Defaults to `[{ type: "CUSTOMER" }]`, the shape VERIFIED live on 2026-11-18. */
+  to?: readonly InboxReplyRecipient[];
+}
+
+/**
+ * What `POST /api/inbox/threads/{thread_id}/message` answers (HTTP 201 live). Only the message
+ * id is relied upon; every other field is passed through untouched.
+ */
+export interface InboxReplyReceipt {
+  /** Id of the message just posted. */
+  id?: string | number | null;
+  [key: string]: unknown;
+}
+
+/** Message inbox: reads plus `reply`, which is a **WRITE** that reaches a real customer. */
 export interface InboxApi {
   /** `M11` — `GET /api/inbox/threads`. */
   threads(params?: InboxThreadParams, options?: RequestOptions): Promise<InboxThreadList>;
+  /**
+   * `M10` — `GET /api/inbox/threads/{thread_id}`: one thread, handy for reading back after a
+   * reply. READ.
+   */
+  thread(threadId: string, options?: RequestOptions): Promise<InboxThread>;
+  /**
+   * `M12` — `POST /api/inbox/threads/{thread_id}/message`, multipart/form-data with one
+   * `message_input` JSON part. **WRITE**: the message is delivered to the customer and cannot be
+   * recalled. Attachments are not supported by this method.
+   */
+  reply(
+    threadId: string,
+    input: InboxReplyInput,
+    options?: RequestOptions,
+  ): Promise<InboxReplyReceipt>;
+  /**
+   * `M13` — `GET /api/inbox/threads/{attachment_id}/download`: the raw bytes of a message
+   * attachment (`application/octet-stream`). READ. Customer content: handle with care.
+   */
+  downloadAttachment(attachmentId: string, options?: RequestOptions): Promise<Uint8Array>;
 }
 
 /** A locale the platform supports. */
@@ -1201,7 +1247,71 @@ export interface OrderTrackingInput {
   trackingNumber: string;
 }
 
-/** Order reads and the three order writes. Only `list` and `get` are safe against a live shop. */
+/** Tax mode of an order refund (`order_tax_mode`). */
+export type OrderTaxMode = "TAX_INCLUDED" | "TAX_EXCLUDED";
+
+/** A tax amount on a refund. Sent on the wire as a string with two decimals. */
+export interface OrderRefundTax {
+  code: string;
+  amount: number | string;
+}
+
+/** A fee amount on a refund. */
+export interface OrderRefundFee {
+  code: string;
+  amount: number;
+}
+
+/** One refund request line for `orders.refund`. */
+export interface OrderRefundLineInput {
+  /** The Mirakl order line being refunded (`order_line_id` on an order line). */
+  orderLineId: string;
+  /** Units refunded; an integer greater than 0. */
+  quantity: number;
+  /** Refunded amount for the line; finite and not negative. */
+  amount: number;
+  /** ISO 4217 code, e.g. `CAD`. */
+  currencyIsoCode: string;
+  /**
+   * A refund reason code from `GET /api/reasons/REFUND`. On Best Buy Canada (live list):
+   * `44` "Item returned - Buyer changed mind" and `17` "Item returned - Damaged/defective/wrong".
+   * Not an enum here: the list belongs to the operator and can change.
+   */
+  reasonCode: string;
+  shippingAmount?: number;
+  taxes?: readonly OrderRefundTax[];
+  shippingTaxes?: readonly OrderRefundTax[];
+  excludedFromShipment?: boolean;
+  fees?: readonly OrderRefundFee[];
+  taxLegalNotice?: string;
+}
+
+/** Payload for `orders.refund`. */
+export interface OrderRefundInput {
+  orderTaxMode?: OrderTaxMode;
+  /** At least one refund line. */
+  refunds: readonly OrderRefundLineInput[];
+}
+
+/** A refund the platform created. **ASSUMPTION**: only the keys below are expected, all optional. */
+export interface OrderRefund {
+  id?: string | number | null;
+  amount?: number | string | null;
+  reason_code?: string | null;
+  order_line_id?: string | null;
+  state?: string | null;
+  quantity?: number | null;
+  [key: string]: unknown;
+}
+
+/** Result of `orders.refund`. **ASSUMPTION**: shape from Mirakl's OR28 reference. */
+export interface OrderRefundResult {
+  order_tax_mode?: string | null;
+  refunds: OrderRefund[];
+  [key: string]: unknown;
+}
+
+/** Order reads and the order writes. Only `list` and `get` are safe against a live shop. */
 export interface OrdersApi {
   /** `OR11` — `GET /api/orders`. */
   list(params?: OrderListParams, options?: RequestOptions): Promise<Page<Order>>;
@@ -1215,6 +1325,11 @@ export interface OrdersApi {
   ship(orderId: string, options?: RequestOptions): Promise<void>;
   /** `OR23` — `PUT /api/orders/{order_id}/tracking`. **WRITE**. */
   setTracking(orderId: string, input: OrderTrackingInput, options?: RequestOptions): Promise<void>;
+  /**
+   * `OR28` — `PUT /api/orders/refund`. **WRITE**: money goes back to the customer and a refund
+   * cannot be undone. Tax amounts are serialised as strings with two decimals.
+   */
+  refund(input: OrderRefundInput, options?: RequestOptions): Promise<OrderRefundResult>;
 }
 
 // ---------------------------------------------------------------------------

@@ -28,7 +28,7 @@ for await (const offer of client.offers.listAll({ max: 100 })) {
 ```
 
 Reads are safe; `offers.update`, `offers.importFile`, `products.importFile`, `orders.accept`,
-`orders.ship` and `orders.setTracking` mutate the seller account. `OPERATIONS` and
+`orders.ship`, `orders.setTracking`, `orders.refund` and `inbox.reply` mutate the seller account. `OPERATIONS` and
 `writeOperationNames()` expose that classification programmatically.
 
 Testing helpers (a route-driven mock `fetch`) live at

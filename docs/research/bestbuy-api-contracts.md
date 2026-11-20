@@ -100,6 +100,9 @@ This table is the contract the live-suite read-only guard is built on. It mirror
 | `shipping.configuration`                | SH42   | GET    | `/api/shipping/configuration/shop`                              | READ      | VERIFIED 2026-10-10 (live)                                                |
 | `shipping.charges`                      | SH52   | GET    | `/api/shipping/charges/shop`                                    | READ      | VERIFIED 2026-10-10 (live)                                                |
 | `inbox.threads`                         | M11    | GET    | `/api/inbox/threads`                                            | READ      | VERIFIED 2026-10-10 (live); `page_token` name ASSUMPTION                  |
+| `inbox.thread`                          | M10    | GET    | `/api/inbox/threads/{thread_id}`                                | READ      | ASSUMPTION (response shape = one M11 thread object)                       |
+| `inbox.reply`                           | M12    | POST   | `/api/inbox/threads/{thread_id}/message`                        | **WRITE** | request shape VERIFIED live 2026-11-18 (HTTP 201); response lenient       |
+| `inbox.downloadAttachment`              | M13    | GET    | `/api/inbox/threads/{attachment_id}/download`                   | READ      | path VERIFIED live 2026-11-20 (HTTP 200, `application/octet-stream`)      |
 | `platform.version`                      | V01    | GET    | `/api/version`                                                  | READ      | VERIFIED 2026-10-10 (live)                                                |
 | `platform.configuration`                | PC01   | GET    | `/api/platform/configuration`                                   | READ      | VERIFIED 2026-10-10 (live)                                                |
 | `platform.locales`                      | L01    | GET    | `/api/locales`                                                  | READ      | VERIFIED 2026-10-10 (live)                                                |
@@ -108,6 +111,7 @@ This table is the contract the live-suite read-only guard is built on. It mirror
 | `orders.accept`                         | OR21   | PUT    | `/api/orders/{order_id}/accept`                                 | **WRITE** | ASSUMPTION                                                                |
 | `orders.ship`                           | OR24   | PUT    | `/api/orders/{order_id}/ship`                                   | **WRITE** | ASSUMPTION                                                                |
 | `orders.setTracking`                    | OR23   | PUT    | `/api/orders/{order_id}/tracking`                               | **WRITE** | ASSUMPTION                                                                |
+| `orders.refund`                         | OR28   | PUT    | `/api/orders/refund`                                            | **WRITE** | request per Mirakl reference; response shape ASSUMPTION                   |
 
 The verb does not decide the classification — the effect on the account does. Today every
 READ here happens to be a GET, and the guard asserts that; if the operator ever exposes a
@@ -1208,9 +1212,86 @@ Body `{ "carrier_code": "...", "carrier_name": "...", "carrier_url": "...",
 "tracking_number": "..." }`. Expected `204`. **ASSUMPTION**: `carrier_code` must come from
 the carrier list; supplying `carrier_name` free-form may be rejected when a code exists.
 
+### OR28 `PUT /api/orders/refund` — **WRITE** — request per Mirakl reference, response **ASSUMPTION** (`client.orders.refund`)
+
+Source: <https://developer.mirakl.com/content/product/mmp/rest/seller/openapi3/orders/or28>
+(read 2026-11-20). Money goes back to the customer and a refund cannot be undone, so no
+call is made without the owner authorizing that specific refund. Body (JSON):
+
+```json
+{
+  "order_tax_mode": "TAX_INCLUDED | TAX_EXCLUDED",
+  "refunds": [
+    {
+      "order_line_id": "...",
+      "quantity": 1,
+      "amount": 120.5,
+      "currency_iso_code": "CAD",
+      "reason_code": "44",
+      "shipping_amount": 5,
+      "taxes": [{ "code": "GST", "amount": "6.03" }],
+      "shipping_taxes": [{ "code": "GST", "amount": "0.25" }],
+      "excluded_from_shipment": false,
+      "fees": [{ "code": "FEE-1", "amount": 1.5 }],
+      "tax_legal_notice": "..."
+    }
+  ]
+}
+```
+
+`order_tax_mode` and every key after `reason_code` are optional. **Tax amounts (`taxes`,
+`shipping_taxes`) are STRINGS on the wire**; the SDK serialises them with two decimals, while
+`amount`, `shipping_amount` and `fees[].amount` are numbers. The SDK refuses an empty
+`refunds` list, a `quantity` that is not an integer > 0, and an `amount` /
+`shipping_amount` / tax / fee amount that is negative or not finite, before any request is
+built. Refund reason codes come from `GET /api/reasons/REFUND`; the live list on Best Buy
+Canada includes `44` "Item returned - Buyer changed mind" and `17` "Item returned -
+Damaged/defective/wrong" (JSDoc only; the SDK does not hard-code an enum).
+
+Response `200`: `{ "order_tax_mode": "...", "refunds": [ ...created refunds ] }`; each
+refund carries at least `id`, `amount`, `reason_code`, `order_line_id` and `state`.
+**ASSUMPTION**: this response shape is from the reference, not from a live call. The SDK
+parses it leniently (loose objects, every key optional, an empty body tolerated) because the
+refund already exists by the time the response is read.
+
+### M10 `GET /api/inbox/threads/{thread_id}` — **ASSUMPTION** (`client.inbox.thread`)
+
+Source: <https://developer.mirakl.com/content/product/mmp/rest/seller/openapi3/messages/m10>
+(read 2026-11-20). READ. Expected to return one thread with the same keys as an M11 `data[]`
+entry, `messages[]` included; the SDK parses it with the M11 thread schema. Meant for
+reading a thread back after a reply. Not yet exercised live.
+
+### M12 `POST /api/inbox/threads/{thread_id}/message` — **WRITE** — request **VERIFIED live 2026-11-18** (`client.inbox.reply`)
+
+Source: <https://developer.mirakl.com/content/product/mmp/rest/seller/openapi3/messages/m12>
+(read 2026-11-20). The message is delivered to a real customer and cannot be recalled.
+`multipart/form-data` with ONE part named `message_input` whose value is a JSON blob
+(`Content-Type: application/json`):
+
+```json
+{ "body": "message text", "to": [{ "type": "CUSTOMER", "id": "optional participant id" }] }
+```
+
+This exact shape was used successfully against the live API on 2026-11-18 and answered HTTP
+`201` with a JSON body that includes the new message's id. The SDK sends it by appending a
+`Blob` (`type: "application/json"`) to a `FormData` and handing that to `fetch`, which sets the
+multipart boundary itself (the client never sets `Content-Type` for a multipart body). Optional
+file parts are named `files`; the SDK does **not** send attachments. `to` defaults to
+`[{ "type": "CUSTOMER" }]`. The receipt is parsed leniently (loose object, `id` optional,
+empty body tolerated) because the message is already delivered when it is read.
+
+### M13 `GET /api/inbox/threads/{attachment_id}/download` — **path VERIFIED live 2026-11-20** (`client.inbox.downloadAttachment`)
+
+Source: <https://developer.mirakl.com/content/product/mmp/rest/seller/openapi3/messages/m13>
+(read 2026-11-20). READ. Answers `200` with the raw file (`application/octet-stream`); the
+SDK returns it as a `Uint8Array` and sends `Accept: application/octet-stream, */*`. The path
+spelling above is the one that worked live on 2026-11-20 (the other paths that were guessed
+answered `404`); note that the segment after `/threads/` is the attachment id, not a thread id.
+Attachments are customer content: handle with care.
+
 ### M11 `GET /api/inbox/threads` — **VERIFIED 2026-10-10 (live)** (`client.inbox.threads`)
 
-Read-only message threads (the SDK has no reply call; Mirakl's reply endpoints are writes).
+Message threads (the reply endpoint, M12, is a WRITE and is documented above).
 Envelope `{ "data": [...] }` with Mirakl's **seek pagination**: `next_page_token` /
 `previous_page_token` appear only when there is another page (neither seen: the shop has a
 single thread). Query: `entity_type` (`MMP_ORDER`, `MMP_OFFER`, `MPS_ORDER`, `MPS_SERVICE`,
@@ -1334,8 +1415,9 @@ L01) and 2026-09-16 (P31, OF02, OF03, AF01 after an owner-authorized OF24).
 
 Still unverified, in the order it will matter:
 
-1. **Every remaining write** — OF01 and the order writes OR21, OR23, OR24. (OF24 and P41 are
-   verified from live ops writes.) None of them has a logged call. Writes stay untouched until
+1. **Every remaining write** — OF01 and the order writes OR21, OR23, OR24, OR28 (OR28's
+   response shape in particular). (OF24 and P41 are verified from live ops writes, and the
+   M12 request shape from a live reply on 2026-11-18.) None of the others has a logged call. Writes stay untouched until
    the owner authorizes a specific write in a specific session.
 2. **The wider order-state vocabulary** — only `WAITING_ACCEPTANCE`, `SHIPPING`, `SHIPPED` and
    `RECEIVED` have been observed; `CANCELED`, `REFUSED`, `CLOSED`, `WAITING_DEBIT*` and
@@ -1347,8 +1429,8 @@ Still unverified, in the order it will matter:
 5. **The ops-script reads that stay unwrapped.** `GET /api/shops` (S20) answers `403` and
    `GET /api/shipping/fees` / `rates` answer `403` / `400` for this key (see SH52); `GET
 /api/shops/documents` (S30) answered an empty list. The async offer export (OF52) and the
-   other inbox endpoints (thread detail M10, message post, attachments) are documented
-   upstream and untouched. The Best Buy storefront endpoints some ops scripts call
+   other inbox endpoints (M10 thread detail, M12 reply, M13 attachment download) are now
+   wrapped; the rest of the inbox surface is documented upstream and untouched. The Best Buy storefront endpoints some ops scripts call
    (`/api/v2/json/search`, `/api/v2/json/product/<sku>`, `/api/MoreBuyingOptions`,
    `/api/ProductRealtime` on bestbuy.ca) are the public website API, not part of this seller
    API, and are out of scope for this SDK.
