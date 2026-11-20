@@ -2,7 +2,8 @@
 
 **Status of this document: the whole READ surface the SDK wraps is verified live; of the WRITE
 surface, the offer batch (OF24) and the product import (P41) are verified from live ops writes.
-The offer file import (OF01) and the three order writes (OR21, OR23, OR24) are not.**
+The inbox reply (M12) and the order refund (OR28) were each verified by a live call on
+2026-11-20. The offer file import (OF01) and the three order writes OR21, OR23 and OR24 are not.**
 
 On **2026-09-11** the read-only endpoints below were called against the real Best Buy Canada
 seller account and their responses captured. Those rows are marked `VERIFIED 2026-09-11` and
@@ -17,8 +18,10 @@ reconciled with what the owner's own authorized ops scripts had already sent and
 (2026-09-16 .. 2026-10-09: OF24 offer batches and P41 product imports, driven through this
 SDK's client); those rows are marked `VERIFIED 2026-10-10 (from live ops writes, <dates>)`. No
 new write was made for that pass. The remaining mutating endpoints — the OF01 file import and
-every order write — have no logged call behind them and are still **ASSUMPTION**, derived from
-Mirakl's published seller API reference.
+every order write other than the refund — have no logged call behind them and are still
+**ASSUMPTION**, derived from Mirakl's published seller API reference. (The refund OR28 and the
+reply M12 were then fired live by the owner on 2026-11-20 and are marked VERIFIED in their own
+sections.)
 
 Two sources are cited throughout:
 
@@ -100,8 +103,8 @@ This table is the contract the live-suite read-only guard is built on. It mirror
 | `shipping.configuration`                | SH42   | GET    | `/api/shipping/configuration/shop`                              | READ      | VERIFIED 2026-10-10 (live)                                                |
 | `shipping.charges`                      | SH52   | GET    | `/api/shipping/charges/shop`                                    | READ      | VERIFIED 2026-10-10 (live)                                                |
 | `inbox.threads`                         | M11    | GET    | `/api/inbox/threads`                                            | READ      | VERIFIED 2026-10-10 (live); `page_token` name ASSUMPTION                  |
-| `inbox.thread`                          | M10    | GET    | `/api/inbox/threads/{thread_id}`                                | READ      | ASSUMPTION (response shape = one M11 thread object)                       |
-| `inbox.reply`                           | M12    | POST   | `/api/inbox/threads/{thread_id}/message`                        | **WRITE** | request shape VERIFIED live 2026-11-18 (HTTP 201); response lenient       |
+| `inbox.thread`                          | M10    | GET    | `/api/inbox/threads/{thread_id}`                                | READ      | VERIFIED 2026-11-20 (live)                                                |
+| `inbox.reply`                           | M12    | POST   | `/api/inbox/threads/{thread_id}/message`                        | **WRITE** | VERIFIED 2026-11-20 (live; request shape first used 2026-11-18)           |
 | `inbox.downloadAttachment`              | M13    | GET    | `/api/inbox/threads/{attachment_id}/download`                   | READ      | path VERIFIED live 2026-11-20 (HTTP 200, `application/octet-stream`)      |
 | `platform.version`                      | V01    | GET    | `/api/version`                                                  | READ      | VERIFIED 2026-10-10 (live)                                                |
 | `platform.configuration`                | PC01   | GET    | `/api/platform/configuration`                                   | READ      | VERIFIED 2026-10-10 (live)                                                |
@@ -111,7 +114,7 @@ This table is the contract the live-suite read-only guard is built on. It mirror
 | `orders.accept`                         | OR21   | PUT    | `/api/orders/{order_id}/accept`                                 | **WRITE** | ASSUMPTION                                                                |
 | `orders.ship`                           | OR24   | PUT    | `/api/orders/{order_id}/ship`                                   | **WRITE** | ASSUMPTION                                                                |
 | `orders.setTracking`                    | OR23   | PUT    | `/api/orders/{order_id}/tracking`                               | **WRITE** | ASSUMPTION                                                                |
-| `orders.refund`                         | OR28   | PUT    | `/api/orders/refund`                                            | **WRITE** | request per Mirakl reference; response shape ASSUMPTION                   |
+| `orders.refund`                         | OR28   | PUT    | `/api/orders/refund`                                            | **WRITE** | VERIFIED 2026-11-20 (live; shipping-tax quirk below)                      |
 
 The verb does not decide the classification — the effect on the account does. Today every
 READ here happens to be a GET, and the guard asserts that; if the operator ever exposes a
@@ -1192,7 +1195,12 @@ The order object, unwrapped - but **a strict subset of the OR11 element**. OR12 
 `product_shop_sku`, `promotions`, `refunds`, `shipping_from`, `shipping_price_amount_breakdown`,
 `shipping_taxes` and `taxes` (32 line keys against OR11's 44). Everything it does return has
 the same type as in OR11, and nothing appears only in OR12. Do not rely on the missing fields
-after a `get`; read them from `list`. An unknown id answers
+after a `get`; read them from `list`, which takes an `order_ids` filter (VERIFIED live
+2026-11-20: `GET /api/orders?order_ids=<id>` returns that one order in full, with line `taxes`,
+`shipping_taxes` and `refunds`), exposed as `client.orders.list({ orderIds: [id] })`. `orders.get`
+is its own endpoint (OR12, `GET /api/orders/{order_id}`), **not** OR11 filtered by id, and it is
+the reduced view; use `list({ orderIds })` whenever a refund is being prepared or checked. An
+unknown id answers
 `404 {"message":"No order with id: 'NOPE-A'","status":404}`.
 
 ### OR21 `PUT /api/orders/{order_id}/accept` — **WRITE** — **ASSUMPTION**
@@ -1212,11 +1220,12 @@ Body `{ "carrier_code": "...", "carrier_name": "...", "carrier_url": "...",
 "tracking_number": "..." }`. Expected `204`. **ASSUMPTION**: `carrier_code` must come from
 the carrier list; supplying `carrier_name` free-form may be rejected when a code exists.
 
-### OR28 `PUT /api/orders/refund` — **WRITE** — request per Mirakl reference, response **ASSUMPTION** (`client.orders.refund`)
+### OR28 `PUT /api/orders/refund` — **WRITE** — **VERIFIED 2026-11-20 (live)** (`client.orders.refund`)
 
 Source: <https://developer.mirakl.com/content/product/mmp/rest/seller/openapi3/orders/or28>
 (read 2026-11-20). Money goes back to the customer and a refund cannot be undone, so no
-call is made without the owner authorizing that specific refund. Body (JSON):
+call is made without the owner authorizing that specific refund. The owner fired one live
+through the SDK on 2026-11-20 (a full refund of one line, reason `44`). Body (JSON):
 
 ```json
 {
@@ -1228,9 +1237,15 @@ call is made without the owner authorizing that specific refund. Body (JSON):
       "amount": 120.5,
       "currency_iso_code": "CAD",
       "reason_code": "44",
-      "shipping_amount": 5,
-      "taxes": [{ "code": "GST", "amount": "6.03" }],
-      "shipping_taxes": [{ "code": "GST", "amount": "0.25" }],
+      "shipping_amount": 0,
+      "taxes": [
+        { "code": "GST", "amount": "6.03" },
+        { "code": "PST", "amount": "0.00" }
+      ],
+      "shipping_taxes": [
+        { "code": "GST", "amount": "0.00" },
+        { "code": "PST", "amount": "0.00" }
+      ],
       "excluded_from_shipment": false,
       "fees": [{ "code": "FEE-1", "amount": 1.5 }],
       "tax_legal_notice": "..."
@@ -1239,29 +1254,63 @@ call is made without the owner authorizing that specific refund. Body (JSON):
 }
 ```
 
-`order_tax_mode` and every key after `reason_code` are optional. **Tax amounts (`taxes`,
-`shipping_taxes`) are STRINGS on the wire**; the SDK serialises them with two decimals, while
-`amount`, `shipping_amount` and `fees[].amount` are numbers. The SDK refuses an empty
-`refunds` list, a `quantity` that is not an integer > 0, and an `amount` /
+`order_tax_mode` and every key after `reason_code` are optional in Mirakl's reference.
+**Tax amounts (`taxes`, `shipping_taxes`) are STRINGS on the wire**; the SDK serialises them with
+two decimals, while `amount`, `shipping_amount` and `fees[].amount` are numbers. The SDK refuses
+an empty `refunds` list, a `quantity` that is not an integer > 0, and an `amount` /
 `shipping_amount` / tax / fee amount that is negative or not finite, before any request is
 built. Refund reason codes come from `GET /api/reasons/REFUND`; the live list on Best Buy
 Canada includes `44` "Item returned - Buyer changed mind" and `17` "Item returned -
 Damaged/defective/wrong" (JSDoc only; the SDK does not hard-code an enum).
 
-Response `200`: `{ "order_tax_mode": "...", "refunds": [ ...created refunds ] }`; each
-refund carries at least `id`, `amount`, `reason_code`, `order_line_id` and `state`.
-**ASSUMPTION**: this response shape is from the reference, not from a live call. The SDK
-parses it leniently (loose objects, every key optional, an empty body tolerated) because the
-refund already exists by the time the response is read.
+**Live validation quirk (VERIFIED 2026-11-20): every shipping tax must be sent, even at 0.**
+The first attempt left `shipping_taxes` out because shipping was 0 and the API answered
 
-### M10 `GET /api/inbox/threads/{thread_id}` — **ASSUMPTION** (`client.inbox.thread`)
+```text
+PUT /api/orders/refund failed with HTTP 400: Invalid value for field
+'refunds[0].shippingPriceTaxAmounts'. All shipping taxes on order line must be specified
+```
+
+The same refund succeeded once it carried `shipping_taxes` for every tax code of the line
+(`GST` and `PST`, both `"0.00"`) plus `taxes` for `GST` and `PST`. So the request has to
+mirror the order line's own `taxes` and `shipping_taxes` arrays code for code, zero amounts
+included. Those arrays exist only on OR11 (`orders.list`) lines, not on OR12 (`orders.get`),
+see below. `client.orders.buildFullRefund(order, orderLineId, reasonCode)` builds the input
+for a whole-line refund that way (`quantity`, `price` as `amount`, `shipping_price`, and every
+tax and shipping tax copied; it refuses an `orders.get` order, an unknown line, and a line
+with `can_refund: false`). It was checked live (read-only) against the refunded line:
+`price` equalled the refunded `amount`, `taxes` equalled the refunded `taxes`, and the order's
+`order_tax_mode` was `TAX_EXCLUDED`, quantity 1. Partial refunds, multi-quantity lines and
+`TAX_INCLUDED` orders remain unverified, so the helper is for the whole-line case and the
+caller builds anything else by hand.
+
+Response `200` (**VERIFIED**, fixture `order-refund-response.json`):
+`{ "order_tax_mode": "TAX_EXCLUDED", "refunds": [ ... ] }`. Each created refund has, in this
+key order, `amount`, `reason_code`, `order_line_id`, `quantity`, `amount_breakdown`
+(`{ parts: [{ amount, commissionable, debitable_from_customer, payable_to_shop }] }`),
+`currency_iso_code`, `excluded_from_shipment`, `fees`, `order_refund_id` (a UUID), `refund_id`
+(a numeric string), `shipping_amount`, `shipping_amount_breakdown`, `shipping_taxes[]` and
+`taxes[]` (each `{ amount, amount_breakdown, code }`, amounts as NUMBERS in the response even
+though they are strings in the request). There is **no `id` and no `state`** on it: the refund's
+state is only visible afterwards on the order line, `refunds[].state`, from OR11, where it read
+`WAITING_REFUND_PAYMENT` right after creation (the line's `can_refund` then turns `false`). OR11
+line refunds carry `id`, `order_refund_id`, `state`, `refund_state`, `quantity`, `reason_code`,
+`amount`, `shipping_amount`, `created_date`, `taxes`, `shipping_taxes`, `fees` and the commission
+fields. The SDK parses the OR28 response leniently (loose objects, every key optional, an empty
+body tolerated) because the refund already exists by the time the response is read.
+
+### M10 `GET /api/inbox/threads/{thread_id}` — **VERIFIED 2026-11-20 (live)** (`client.inbox.thread`)
 
 Source: <https://developer.mirakl.com/content/product/mmp/rest/seller/openapi3/messages/m10>
-(read 2026-11-20). READ. Expected to return one thread with the same keys as an M11 `data[]`
-entry, `messages[]` included; the SDK parses it with the M11 thread schema. Meant for
-reading a thread back after a reply. Not yet exercised live.
+(read 2026-11-20). READ. Returns ONE thread, unwrapped (no `{ "data": [...] }` envelope), with the
+same keys as an M11 `data[]` entry and `messages[]` always included (fixture
+`inbox-thread.json`, captured after a reply). New facts from that capture: a message sent by the
+customer has `from.type` `CUSTOMER_USER` (and `from.organization_details.type` `CUSTOMER`);
+a message with a file carries `attachments: [{ id, name, size }]`, and that `id` is what
+M13 takes. A message the shop posted with M12 appears here with `id` equal to the M12
+`message_id`. Message bodies can be HTML (customer mail clients) or plain text with `\n`.
 
-### M12 `POST /api/inbox/threads/{thread_id}/message` — **WRITE** — request **VERIFIED live 2026-11-18** (`client.inbox.reply`)
+### M12 `POST /api/inbox/threads/{thread_id}/message` — **WRITE** — **VERIFIED live 2026-11-18 (request) and 2026-11-20 (response)** (`client.inbox.reply`)
 
 Source: <https://developer.mirakl.com/content/product/mmp/rest/seller/openapi3/messages/m12>
 (read 2026-11-20). The message is delivered to a real customer and cannot be recalled.
@@ -1273,12 +1322,13 @@ Source: <https://developer.mirakl.com/content/product/mmp/rest/seller/openapi3/m
 ```
 
 This exact shape was used successfully against the live API on 2026-11-18 and answered HTTP
-`201` with a JSON body that includes the new message's id. The SDK sends it by appending a
+`201` with `{ "message_id": "...", "thread_id": "..." }` (VERIFIED 2026-11-20, fixture
+`inbox-reply-response.json`: the id key is `message_id`, not `id`). The SDK sends it by appending a
 `Blob` (`type: "application/json"`) to a `FormData` and handing that to `fetch`, which sets the
 multipart boundary itself (the client never sets `Content-Type` for a multipart body). Optional
 file parts are named `files`; the SDK does **not** send attachments. `to` defaults to
-`[{ "type": "CUSTOMER" }]`. The receipt is parsed leniently (loose object, `id` optional,
-empty body tolerated) because the message is already delivered when it is read.
+`[{ "type": "CUSTOMER" }]`. The receipt is parsed leniently (loose object, `message_id` and
+`thread_id` optional, empty body tolerated) because the message is already delivered when it is read.
 
 ### M13 `GET /api/inbox/threads/{attachment_id}/download` — **path VERIFIED live 2026-11-20** (`client.inbox.downloadAttachment`)
 
@@ -1291,23 +1341,21 @@ Attachments are customer content: handle with care.
 
 ### Fixture status for OR28, M10, M12 and M13
 
-The mocked tests replay fixtures in `packages/sdk/test/fixtures/`, but not every one is a
-real capture yet:
+The mocked tests replay fixtures in `packages/sdk/test/fixtures/`. All are real captures,
+scrubbed, except the attachment:
 
-| Fixture                                  | Used by                          | Status                                                                                                                                 |
-| ---------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `inbox-thread.json`                      | `inbox.thread` (M10)             | Scrubbed thread object with the keys, types and key order of a real M11 capture; a scrubbed real M10 capture is still to be swapped in |
-| `inbox-attachment.png`                   | `inbox.downloadAttachment` (M13) | A 1x1 fake PNG. The real attachment is never stored                                                                                    |
-| `placeholder-order-refund-response.json` | `orders.refund` (OR28)           | **PLACEHOLDER**, shaped from the Mirakl docs. No real refund response has been captured                                                |
-| `placeholder-inbox-reply-response.json`  | `inbox.reply` (M12)              | **PLACEHOLDER**, shaped from the docs and the live 201 (`id` present). The real body has not been captured                             |
+| Fixture                      | Used by                          | Status                                                                                                    |
+| ---------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `order-refund-response.json` | `orders.refund` (OR28)           | Real response captured live 2026-11-20; ids, order line id and amounts replaced by fakes                  |
+| `inbox-reply-response.json`  | `inbox.reply` (M12)              | Real response captured live 2026-11-20; message and thread ids replaced by fakes                          |
+| `inbox-thread.json`          | `inbox.thread` (M10)             | Real response captured live 2026-11-20; names, e-mails, ids, dates, addresses and message bodies replaced |
+| `inbox-attachment.png`       | `inbox.downloadAttachment` (M13) | A 1x1 fake PNG. The real attachment is never stored                                                       |
 
-Real captures go in the same directory, with every name, e-mail, customer id, address and
-free-text body replaced by a fake value (keeping structure, field types and key order), under
-the names `order-refund-response.json` and `inbox-reply-response.json` (and
-`inbox-thread.json` for M10), replacing the `placeholder-` files and these table rows. The
-owner fires the first real OR28 and M12 calls through the SDK; their responses are captured
-then and land in a follow-up change. `npm run check:secrets` scans fixtures like every other
-file.
+Scrubbing rule for any future capture: every name, e-mail, customer / participant / shop /
+order / thread / message / refund / attachment id, address, date and free-text body becomes a
+fake value, while the structure, field types and key order stay exactly as captured. The
+OR28 400 error quoted above is kept in this document as text only. `npm run check:secrets`
+scans fixtures like every other file.
 
 ### M11 `GET /api/inbox/threads` — **VERIFIED 2026-10-10 (live)** (`client.inbox.threads`)
 
@@ -1435,9 +1483,9 @@ L01) and 2026-09-16 (P31, OF02, OF03, AF01 after an owner-authorized OF24).
 
 Still unverified, in the order it will matter:
 
-1. **Every remaining write** — OF01 and the order writes OR21, OR23, OR24, OR28 (OR28's
-   response shape in particular). (OF24 and P41 are verified from live ops writes, and the
-   M12 request shape from a live reply on 2026-11-18.) None of the others has a logged call. Writes stay untouched until
+1. **Every remaining write** — OF01 and the order writes OR21, OR23, OR24. (OF24 and P41 are
+   verified from live ops writes, M12 from live replies on 2026-11-18 and 2026-11-20, and OR28
+   from one live refund on 2026-11-20.) None of the others has a logged call. Writes stay untouched until
    the owner authorizes a specific write in a specific session.
 2. **The wider order-state vocabulary** — only `WAITING_ACCEPTANCE`, `SHIPPING`, `SHIPPED` and
    `RECEIVED` have been observed; `CANCELED`, `REFUSED`, `CLOSED`, `WAITING_DEBIT*` and

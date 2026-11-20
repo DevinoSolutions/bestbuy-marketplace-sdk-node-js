@@ -4,10 +4,10 @@
  * request shape (one multipart `message_input` JSON part) is the one VERIFIED live on
  * 2026-11-18, and the M13 path was VERIFIED live on 2026-11-20.
  *
- * Fixtures: `inbox-thread.json` is the scrubbed thread object (same keys and types as a real
- * M11 capture, which M10 returns one of); `inbox-attachment.png` is a tiny fake image, never a
- * real attachment; `placeholder-inbox-reply-response.json` is shaped from the docs and is
- * REPLACED by a real capture in a follow-up (see the contracts doc, "Fixture status").
+ * Fixtures are REAL responses captured live on 2026-11-20 (the M10 thread after a reply, and
+ * the M12 receipt) with every name, id, date, e-mail address and message body replaced by a
+ * fake value; structure, types and key order are the captured ones. `inbox-attachment.png` is
+ * a tiny fake image: a real attachment is never stored.
  */
 import { describe, expect, it } from "vitest";
 import { BestBuyApiError, BestBuyValidationError } from "../src/errors/index.js";
@@ -21,20 +21,24 @@ import {
 } from "./helpers.js";
 
 const thread = readFixture("inbox-thread");
+const THREAD_ID = "11111111-1111-4111-8111-111111111111";
 
 describe("inbox.thread (M10)", () => {
   it("GETs one thread by id", async () => {
     const { client, calls } = harness([
-      route("GET", /^\/api\/inbox\/threads\/thread-1$/, 200, thread),
+      route("GET", new RegExp(`^/api/inbox/threads/${THREAD_ID}$`), 200, thread),
     ]);
-    const result = await client.inbox.thread("thread-1");
-    expect(result.id).toBe("thread-1");
-    expect(result.messages?.[0]?.id).toBe("message-1");
+    const result = await client.inbox.thread(THREAD_ID);
+    expect(result.id).toBe(THREAD_ID);
+    expect(result.messages).toHaveLength(4);
+    expect(result.messages?.[0]?.from?.type).toBe("CUSTOMER_USER");
+    // The customer's message with an image carries its attachment ids.
+    expect(result.messages?.[2]?.attachments?.[0]).toMatchObject({ name: "image.png", size: 1024 });
     expect(result.metadata?.shop_reply_needed_since).toBeNull();
     expect(result.current_participants?.map((p) => p.type)).toEqual(["CUSTOMER", "SHOP"]);
     const call = onlyCall(calls);
     expect(call.method).toBe("GET");
-    expect(call.url.pathname).toBe("/api/inbox/threads/thread-1");
+    expect(call.url.pathname).toBe(`/api/inbox/threads/${THREAD_ID}`);
   });
 
   it("encodes the id and refuses an empty one", async () => {
@@ -46,19 +50,19 @@ describe("inbox.thread (M10)", () => {
 });
 
 describe("inbox.reply (M12)", () => {
-  const replyPath = /^\/api\/inbox\/threads\/thread-1\/message$/;
+  const replyPath = new RegExp(`^/api/inbox/threads/${THREAD_ID}/message$`);
 
   it("POSTs multipart with ONE application/json `message_input` part", async () => {
     const { client, calls } = harness([
-      route("POST", replyPath, 201, readFixture("placeholder-inbox-reply-response")),
+      route("POST", replyPath, 201, readFixture("inbox-reply-response")),
     ]);
-    const receipt = await client.inbox.reply("thread-1", {
+    const receipt = await client.inbox.reply(THREAD_ID, {
       body: "Thanks, a refund is on its way.",
     });
 
     const call = onlyCall(calls);
     expect(call.method).toBe("POST");
-    expect(call.url.pathname).toBe("/api/inbox/threads/thread-1/message");
+    expect(call.url.pathname).toBe(`/api/inbox/threads/${THREAD_ID}/message`);
     // Auth is attached, but no hand-set Content-Type: fetch adds the multipart boundary.
     expect(call.headers.get("authorization")).toBe(TEST_API_KEY);
     expect(call.headers.has("content-type")).toBe(false);
@@ -76,12 +80,17 @@ describe("inbox.reply (M12)", () => {
       to: [{ type: "CUSTOMER" }],
     });
 
-    expect(receipt.id).toBe("message-2");
+    expect(receipt).toEqual({
+      message_id: "44444444-4444-4444-8444-444444444444",
+      thread_id: THREAD_ID,
+    });
   });
 
   it("passes explicit recipients through, including an id", async () => {
-    const { client, calls } = harness([route("POST", replyPath, 201, { id: 77 })]);
-    const receipt = await client.inbox.reply("thread-1", {
+    const { client, calls } = harness([
+      route("POST", replyPath, 201, { message_id: "m-77", note: "kept" }),
+    ]);
+    const receipt = await client.inbox.reply(THREAD_ID, {
       body: "hi",
       to: [{ type: "CUSTOMER", id: "cust-1" }, { type: "OPERATOR" }],
     });
@@ -90,17 +99,18 @@ describe("inbox.reply (M12)", () => {
       body: "hi",
       to: [{ type: "CUSTOMER", id: "cust-1" }, { type: "OPERATOR" }],
     });
-    expect(receipt.id).toBe(77);
+    expect(receipt.message_id).toBe("m-77");
+    expect(receipt.note).toBe("kept");
   });
 
   it("tolerates an empty 201 body (the message is already delivered)", async () => {
     const { client } = harness([route("POST", replyPath, 201)]);
-    await expect(client.inbox.reply("thread-1", { body: "hi" })).resolves.toEqual({});
+    await expect(client.inbox.reply(THREAD_ID, { body: "hi" })).resolves.toEqual({});
   });
 
   it("maps an upstream failure to an API error and never retries", async () => {
     const { client, calls } = harness([route("POST", replyPath, 500, { message: "boom" })]);
-    await expect(client.inbox.reply("thread-1", { body: "hi" })).rejects.toBeInstanceOf(
+    await expect(client.inbox.reply(THREAD_ID, { body: "hi" })).rejects.toBeInstanceOf(
       BestBuyApiError,
     );
     expect(calls).toHaveLength(1);
@@ -108,10 +118,10 @@ describe("inbox.reply (M12)", () => {
 
   it.each([
     ["empty thread id", "", { body: "hi" }],
-    ["empty body", "thread-1", { body: "   " }],
-    ["no recipients", "thread-1", { body: "hi", to: [] }],
-    ["recipient without a type", "thread-1", { body: "hi", to: [{ type: "" }] }],
-    ["empty recipient id", "thread-1", { body: "hi", to: [{ type: "CUSTOMER", id: "" }] }],
+    ["empty body", THREAD_ID, { body: "   " }],
+    ["no recipients", THREAD_ID, { body: "hi", to: [] }],
+    ["recipient without a type", THREAD_ID, { body: "hi", to: [{ type: "" }] }],
+    ["empty recipient id", THREAD_ID, { body: "hi", to: [{ type: "CUSTOMER", id: "" }] }],
   ])("refuses %s before any request is made", async (_label, threadId, input) => {
     const { client, calls } = harness([route("POST", /^\/api\/inbox/, 201, { id: "x" })]);
     await expect(

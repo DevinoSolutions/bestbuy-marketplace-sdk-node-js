@@ -459,6 +459,18 @@ const orderAddressSchema = z.looseObject({
 // Order lines, VERIFIED 2026-10-10 against six real orders. Dates are null until the
 // matching transition happens (`shipped_date` before shipping, `debited_date` before the
 // customer is debited, ...).
+const orderLineRefundSchema = z.looseObject({
+  id: z.string().nullish(),
+  order_refund_id: z.string().nullish(),
+  state: z.string().nullish(),
+  refund_state: z.string().nullish(),
+  quantity: z.number().nullish(),
+  reason_code: z.string().nullish(),
+  amount: z.number().nullish(),
+  shipping_amount: z.number().nullish(),
+  created_date: z.string().nullish(),
+});
+
 const orderLineSchema = z.looseObject({
   order_line_id: z.string(),
   order_line_index: z.number().optional(),
@@ -491,7 +503,7 @@ const orderLineSchema = z.looseObject({
   shipping_taxes: z.array(orderTaxSchema).optional(),
   can_refund: z.boolean().optional(),
   cancelations: z.array(z.unknown()).optional(),
-  refunds: z.array(z.unknown()).optional(),
+  refunds: z.array(orderLineRefundSchema).optional(),
   fees: z.array(z.unknown()).optional(),
   promotions: z.array(z.unknown()).optional(),
   created_date: z.string().optional(),
@@ -751,6 +763,15 @@ export const inboxThreadSchema = z.looseObject({
           })
           .nullish(),
         to: z.array(inboxParticipantSchema).optional(),
+        attachments: z
+          .array(
+            z.looseObject({
+              id: z.string(),
+              name: z.string().nullish(),
+              size: z.number().nullish(),
+            }),
+          )
+          .optional(),
       }),
     )
     .optional(),
@@ -766,17 +787,27 @@ export const inboxThreadListSchema = z.looseObject({
 // Parsed leniently on purpose: the message is already delivered by the time this runs, so a
 // surprising shape must not turn a successful send into a thrown error.
 export const inboxReplyReceiptSchema = z.looseObject({
-  id: z.union([z.string(), z.number()]).nullish(),
+  message_id: z.string().nullish(),
+  thread_id: z.string().nullish(),
 });
 
-// OR28 refund result. ASSUMPTION: every key optional/nullish for the same reason as above.
+// OR28 refund result (VERIFIED live 2026-11-20): ids are `refund_id` / `order_refund_id`, there
+// is no `state`. Every key optional/nullish for the same reason as above.
+const moneyValue = z.union([z.number(), z.string()]).nullish();
+const refundTaxResultSchema = z.looseObject({ code: z.string().optional(), amount: moneyValue });
 const orderRefundSchema = z.looseObject({
-  id: z.union([z.string(), z.number()]).nullish(),
-  amount: z.union([z.number(), z.string()]).nullish(),
+  refund_id: z.string().nullish(),
+  order_refund_id: z.string().nullish(),
+  amount: moneyValue,
   reason_code: z.string().nullish(),
   order_line_id: z.string().nullish(),
-  state: z.string().nullish(),
   quantity: z.number().nullish(),
+  currency_iso_code: z.string().nullish(),
+  shipping_amount: moneyValue,
+  excluded_from_shipment: z.boolean().nullish(),
+  fees: z.array(z.unknown()).nullish(),
+  taxes: z.array(refundTaxResultSchema).nullish(),
+  shipping_taxes: z.array(refundTaxResultSchema).nullish(),
 });
 
 export const orderRefundResultSchema = z.looseObject({

@@ -17,9 +17,9 @@ Non-negotiables (duplicated here so no tool misses them):
    plus a preview→apply flow.
 6. `docs/research/bestbuy-api-contracts.md` marks each shape `VERIFIED <date>` or
    **ASSUMPTION**. The read surface was verified live (2026-09-11, again 2026-10-10); OF24 and
-   P41 are verified from the owner's logged live writes. The M12 inbox reply request
-   shape was verified live on 2026-11-18. OF01 and the order writes (OR21, OR23, OR24, OR28)
-   are still assumptions. Do not present guessed field names as facts.
+   P41 are verified from the owner's logged live writes. The M12 inbox reply (2026-11-18,
+   2026-11-20) and the OR28 order refund (2026-11-20) are verified from live calls. OF01 and the
+   order writes OR21, OR23, OR24 are still assumptions. Do not present guessed field names as facts.
 
 Before claiming done: `npm run format:check && npm run typecheck && npm run lint &&
 npm run build && npm test && npm run verify:exports && npm run check:secrets &&

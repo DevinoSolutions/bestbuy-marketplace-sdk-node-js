@@ -15,8 +15,9 @@ catalog metadata, shipping reference data and orders.
 > [`docs/research/bestbuy-api-contracts.md`](https://github.com/DevinoSolutions/bestbuy-marketplace-sdk-node-js/blob/main/docs/research/bestbuy-api-contracts.md). Of the
 > mutating endpoints, the offer batch (`offers.update`, OF24) and the product import
 > (`products.importFile`, P41) are marked verified from real, owner-authorized ops writes; the
-> inbox reply request shape (`inbox.reply`, M12) is marked verified from a live reply; the
-> offer file import (OF01) and the order writes (accept, ship, tracking, refund) are still marked
+> inbox reply (`inbox.reply`, M12) and the order refund (`orders.refund`, OR28) are marked verified
+> from live calls on 2026-11-18 / 2026-11-20; the
+> offer file import (OF01) and the order writes (accept, ship, tracking) are still marked
 > **ASSUMPTION**, derived from Mirakl's standard seller API — the operator customizes paths,
 > field names and codes, so treat the first real use of one of those as a verification step,
 > not as a regression test.

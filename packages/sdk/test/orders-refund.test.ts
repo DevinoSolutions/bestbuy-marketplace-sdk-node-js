@@ -1,9 +1,10 @@
 /**
  * OR28 refund (`orders.refund`), a WRITE. Driven through the public API with a mocked fetch;
- * every id and amount is a made-up placeholder. The response shape is an ASSUMPTION (see the
- * contracts doc), so the tests also pin that parsing stays lenient. The 200 body comes from
- * `placeholder-order-refund-response.json`, shaped from the Mirakl docs; a real capture
- * replaces it in a follow-up (contracts doc, "Fixture status").
+ * every id and amount is a made-up placeholder. The 200 body comes from
+ * `order-refund-response.json`, a REAL response captured live on 2026-11-20 with every id and
+ * amount replaced by a fake value (structure, types and key order are the captured ones). The
+ * tests also pin that parsing stays lenient, and `buildFullRefund` reproduces the request that
+ * succeeded live (all GST/PST taxes and shipping taxes, zeros included).
  */
 import { describe, expect, it } from "vitest";
 import { BestBuyApiError, BestBuyValidationError } from "../src/errors/index.js";
@@ -12,7 +13,7 @@ import { harness, onlyCall, readFixture, route } from "./helpers.js";
 const refundPath = /^\/api\/orders\/refund$/;
 
 const line = {
-  orderLineId: "121318264-A",
+  orderLineId: "100000001",
   quantity: 1,
   amount: 120.5,
   currencyIsoCode: "CAD",
@@ -22,7 +23,7 @@ const line = {
 describe("orders.refund (OR28)", () => {
   it("PUTs /api/orders/refund with Mirakl field names and string tax amounts", async () => {
     const { client, calls } = harness([
-      route("PUT", refundPath, 200, readFixture("placeholder-order-refund-response")),
+      route("PUT", refundPath, 200, readFixture("order-refund-response")),
     ]);
     const result = await client.orders.refund({
       orderTaxMode: "TAX_EXCLUDED",
@@ -50,7 +51,7 @@ describe("orders.refund (OR28)", () => {
       order_tax_mode: "TAX_EXCLUDED",
       refunds: [
         {
-          order_line_id: "121318264-A",
+          order_line_id: "100000001",
           quantity: 1,
           amount: 120.5,
           currency_iso_code: "CAD",
@@ -76,11 +77,13 @@ describe("orders.refund (OR28)", () => {
     expect(result.order_tax_mode).toBe("TAX_EXCLUDED");
     expect(result.refunds).toHaveLength(1);
     expect(result.refunds[0]).toMatchObject({
-      id: "refund-1",
-      amount: 1.5,
+      refund_id: "2000001",
+      order_refund_id: "22222222-2222-4222-8222-222222222222",
+      amount: 120.5,
       reason_code: "44",
-      order_line_id: "ORDER-1-A",
-      state: "WAITING_REFUND",
+      order_line_id: "100000001",
+      quantity: 1,
+      currency_iso_code: "CAD",
     });
   });
 
@@ -90,7 +93,7 @@ describe("orders.refund (OR28)", () => {
     expect(onlyCall(calls).bodyJson).toEqual({
       refunds: [
         {
-          order_line_id: "121318264-A",
+          order_line_id: "100000001",
           quantity: 1,
           amount: 120.5,
           currency_iso_code: "CAD",
@@ -106,7 +109,7 @@ describe("orders.refund (OR28)", () => {
       orderTaxMode: "TAX_INCLUDED",
       refunds: [
         { ...line, amount: 0 },
-        { ...line, orderLineId: "121318264-B", reasonCode: "17", quantity: 2 },
+        { ...line, orderLineId: "100000002", reasonCode: "17", quantity: 2 },
       ],
     });
     const json = onlyCall(calls).bodyJson as { order_tax_mode: string; refunds: unknown[] };
@@ -119,10 +122,13 @@ describe("orders.refund (OR28)", () => {
     await expect(empty.client.orders.refund({ refunds: [line] })).resolves.toEqual({ refunds: [] });
 
     const sparse = harness([
-      route("PUT", refundPath, 200, { refunds: [{ id: 5, state: null }], order_tax_mode: null }),
+      route("PUT", refundPath, 200, {
+        refunds: [{ refund_id: "5", quantity: null }],
+        order_tax_mode: null,
+      }),
     ]);
     const result = await sparse.client.orders.refund({ refunds: [line] });
-    expect(result.refunds[0]?.id).toBe(5);
+    expect(result.refunds[0]?.refund_id).toBe("5");
   });
 
   it("surfaces an upstream rejection as an API error", async () => {
