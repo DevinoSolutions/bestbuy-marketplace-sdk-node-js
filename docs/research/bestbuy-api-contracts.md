@@ -1289,6 +1289,26 @@ spelling above is the one that worked live on 2026-11-20 (the other paths that w
 answered `404`); note that the segment after `/threads/` is the attachment id, not a thread id.
 Attachments are customer content: handle with care.
 
+### Fixture status for OR28, M10, M12 and M13
+
+The mocked tests replay fixtures in `packages/sdk/test/fixtures/`, but not every one is a
+real capture yet:
+
+| Fixture                                  | Used by                          | Status                                                                                                                                 |
+| ---------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `inbox-thread.json`                      | `inbox.thread` (M10)             | Scrubbed thread object with the keys, types and key order of a real M11 capture; a scrubbed real M10 capture is still to be swapped in |
+| `inbox-attachment.png`                   | `inbox.downloadAttachment` (M13) | A 1x1 fake PNG. The real attachment is never stored                                                                                    |
+| `placeholder-order-refund-response.json` | `orders.refund` (OR28)           | **PLACEHOLDER**, shaped from the Mirakl docs. No real refund response has been captured                                                |
+| `placeholder-inbox-reply-response.json`  | `inbox.reply` (M12)              | **PLACEHOLDER**, shaped from the docs and the live 201 (`id` present). The real body has not been captured                             |
+
+Real captures go in the same directory, with every name, e-mail, customer id, address and
+free-text body replaced by a fake value (keeping structure, field types and key order), under
+the names `order-refund-response.json` and `inbox-reply-response.json` (and
+`inbox-thread.json` for M10), replacing the `placeholder-` files and these table rows. The
+owner fires the first real OR28 and M12 calls through the SDK; their responses are captured
+then and land in a follow-up change. `npm run check:secrets` scans fixtures like every other
+file.
+
 ### M11 `GET /api/inbox/threads` — **VERIFIED 2026-10-10 (live)** (`client.inbox.threads`)
 
 Message threads (the reply endpoint, M12, is a WRITE and is documented above).

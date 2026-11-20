@@ -1,11 +1,13 @@
 /**
  * OR28 refund (`orders.refund`), a WRITE. Driven through the public API with a mocked fetch;
  * every id and amount is a made-up placeholder. The response shape is an ASSUMPTION (see the
- * contracts doc), so the tests also pin that parsing stays lenient.
+ * contracts doc), so the tests also pin that parsing stays lenient. The 200 body comes from
+ * `placeholder-order-refund-response.json`, shaped from the Mirakl docs; a real capture
+ * replaces it in a follow-up (contracts doc, "Fixture status").
  */
 import { describe, expect, it } from "vitest";
 import { BestBuyApiError, BestBuyValidationError } from "../src/errors/index.js";
-import { harness, onlyCall, route } from "./helpers.js";
+import { harness, onlyCall, readFixture, route } from "./helpers.js";
 
 const refundPath = /^\/api\/orders\/refund$/;
 
@@ -20,19 +22,7 @@ const line = {
 describe("orders.refund (OR28)", () => {
   it("PUTs /api/orders/refund with Mirakl field names and string tax amounts", async () => {
     const { client, calls } = harness([
-      route("PUT", refundPath, 200, {
-        order_tax_mode: "TAX_EXCLUDED",
-        refunds: [
-          {
-            id: "900001",
-            amount: 120.5,
-            reason_code: "44",
-            order_line_id: "121318264-A",
-            state: "WAITING_REFUND",
-            extra_field: "kept",
-          },
-        ],
-      }),
+      route("PUT", refundPath, 200, readFixture("placeholder-order-refund-response")),
     ]);
     const result = await client.orders.refund({
       orderTaxMode: "TAX_EXCLUDED",
@@ -86,12 +76,11 @@ describe("orders.refund (OR28)", () => {
     expect(result.order_tax_mode).toBe("TAX_EXCLUDED");
     expect(result.refunds).toHaveLength(1);
     expect(result.refunds[0]).toMatchObject({
-      id: "900001",
-      amount: 120.5,
+      id: "refund-1",
+      amount: 1.5,
       reason_code: "44",
-      order_line_id: "121318264-A",
+      order_line_id: "ORDER-1-A",
       state: "WAITING_REFUND",
-      extra_field: "kept",
     });
   });
 

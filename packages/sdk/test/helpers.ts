@@ -3,6 +3,7 @@
  * injected `fetch`, so the code under test is the same code that ships — only the socket is
  * replaced.
  */
+import { readFileSync } from "node:fs";
 import { createBestBuyClient } from "../src/index.js";
 import { createMockFetch, type MockRoute, type RecordedCall } from "../src/testing/index.js";
 import type { BestBuyClient, BestBuyClientConfig } from "../src/types.js";
@@ -76,3 +77,13 @@ export const sampleOrder = {
   created_date: "2026-09-01T12:00:00Z",
   order_lines: [{ order_line_id: "ORDER-1-A", quantity: 1, offer_sku: "SKU-1" }],
 };
+
+/** Parses `test/fixtures/<name>.json`. */
+export function readFixture(name: string): unknown {
+  return JSON.parse(readFileSync(new URL(`./fixtures/${name}.json`, import.meta.url), "utf8"));
+}
+
+/** Reads a binary fixture, e.g. `inbox-attachment.png`, as bytes. */
+export function readFixtureBytes(fileName: string): Uint8Array {
+  return new Uint8Array(readFileSync(new URL(`./fixtures/${fileName}`, import.meta.url)));
+}

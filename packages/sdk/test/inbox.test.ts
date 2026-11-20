@@ -3,18 +3,24 @@
  * public API with a mocked fetch. Every id and string below is a made-up placeholder; the M12
  * request shape (one multipart `message_input` JSON part) is the one VERIFIED live on
  * 2026-11-18, and the M13 path was VERIFIED live on 2026-11-20.
+ *
+ * Fixtures: `inbox-thread.json` is the scrubbed thread object (same keys and types as a real
+ * M11 capture, which M10 returns one of); `inbox-attachment.png` is a tiny fake image, never a
+ * real attachment; `placeholder-inbox-reply-response.json` is shaped from the docs and is
+ * REPLACED by a real capture in a follow-up (see the contracts doc, "Fixture status").
  */
 import { describe, expect, it } from "vitest";
 import { BestBuyApiError, BestBuyValidationError } from "../src/errors/index.js";
-import { harness, onlyCall, route, TEST_API_KEY } from "./helpers.js";
+import {
+  harness,
+  onlyCall,
+  readFixture,
+  readFixtureBytes,
+  route,
+  TEST_API_KEY,
+} from "./helpers.js";
 
-const thread = {
-  id: "thread-1",
-  topic: { type: "FREE_TEXT", value: "Question about an order" },
-  entities: [{ id: "ORDER-1", type: "MMP_ORDER", label: "Order ORDER-1" }],
-  current_participants: [{ id: "cust-1", type: "CUSTOMER", display_name: "A. Customer" }],
-  messages: [{ id: "msg-1", body: "hello", from: { type: "SHOP_USER" } }],
-};
+const thread = readFixture("inbox-thread");
 
 describe("inbox.thread (M10)", () => {
   it("GETs one thread by id", async () => {
@@ -23,7 +29,9 @@ describe("inbox.thread (M10)", () => {
     ]);
     const result = await client.inbox.thread("thread-1");
     expect(result.id).toBe("thread-1");
-    expect(result.messages?.[0]?.id).toBe("msg-1");
+    expect(result.messages?.[0]?.id).toBe("message-1");
+    expect(result.metadata?.shop_reply_needed_since).toBeNull();
+    expect(result.current_participants?.map((p) => p.type)).toEqual(["CUSTOMER", "SHOP"]);
     const call = onlyCall(calls);
     expect(call.method).toBe("GET");
     expect(call.url.pathname).toBe("/api/inbox/threads/thread-1");
@@ -41,7 +49,9 @@ describe("inbox.reply (M12)", () => {
   const replyPath = /^\/api\/inbox\/threads\/thread-1\/message$/;
 
   it("POSTs multipart with ONE application/json `message_input` part", async () => {
-    const { client, calls } = harness([route("POST", replyPath, 201, { id: "msg-2", extra: 1 })]);
+    const { client, calls } = harness([
+      route("POST", replyPath, 201, readFixture("placeholder-inbox-reply-response")),
+    ]);
     const receipt = await client.inbox.reply("thread-1", {
       body: "Thanks, a refund is on its way.",
     });
@@ -66,8 +76,7 @@ describe("inbox.reply (M12)", () => {
       to: [{ type: "CUSTOMER" }],
     });
 
-    expect(receipt.id).toBe("msg-2");
-    expect(receipt.extra).toBe(1);
+    expect(receipt.id).toBe("message-2");
   });
 
   it("passes explicit recipients through, including an id", async () => {
@@ -115,7 +124,7 @@ describe("inbox.reply (M12)", () => {
 describe("inbox.downloadAttachment (M13)", () => {
   it("GETs the download path and returns the exact bytes", async () => {
     const seen: { url: string; accept: string | null }[] = [];
-    const bytes = Uint8Array.from([0, 1, 2, 250, 255]);
+    const bytes = readFixtureBytes("inbox-attachment.png");
     const { client } = harness([], {
       fetch: (async (input: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => {
         seen.push({
@@ -130,7 +139,9 @@ describe("inbox.downloadAttachment (M13)", () => {
     });
     const got = await client.inbox.downloadAttachment("att-9");
     expect(got).toBeInstanceOf(Uint8Array);
-    expect([...got]).toEqual([0, 1, 2, 250, 255]);
+    expect([...got]).toEqual([...bytes]);
+    // PNG signature: the bytes came through untouched, not re-encoded as text.
+    expect([...got.slice(0, 8)]).toEqual([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
     expect(new URL(seen[0]?.url ?? "").pathname).toBe("/api/inbox/threads/att-9/download");
     expect(seen[0]?.accept).toContain("application/octet-stream");
   });
