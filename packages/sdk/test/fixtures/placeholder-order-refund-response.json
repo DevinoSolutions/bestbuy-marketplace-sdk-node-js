@@ -1,0 +1,13 @@
+{
+  "order_tax_mode": "TAX_EXCLUDED",
+  "refunds": [
+    {
+      "amount": 1.5,
+      "order_line_id": "ORDER-1-A",
+      "quantity": 1,
+      "reason_code": "44",
+      "id": "refund-1",
+      "state": "WAITING_REFUND"
+    }
+  ]
+}

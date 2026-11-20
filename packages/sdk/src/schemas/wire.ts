@@ -720,46 +720,68 @@ const inboxParticipantSchema = z.looseObject({
   display_name: z.string().optional(),
 });
 
+export const inboxThreadSchema = z.looseObject({
+  id: z.string(),
+  topic: z.looseObject({ type: z.string(), value: z.string().nullish() }).nullish(),
+  entities: z
+    .array(z.looseObject({ id: z.string(), type: z.string(), label: z.string().optional() }))
+    .optional(),
+  authorized_participants: z.array(inboxParticipantSchema).optional(),
+  current_participants: z.array(inboxParticipantSchema).optional(),
+  date_created: z.string().optional(),
+  date_updated: z.string().optional(),
+  metadata: z
+    .looseObject({
+      last_message_date: z.string().nullish(),
+      shop_reply_needed_since: z.string().nullish(),
+      total_count: z.number().optional(),
+    })
+    .nullish(),
+  messages: z
+    .array(
+      z.looseObject({
+        id: z.string(),
+        body: z.string().nullish(),
+        date_created: z.string().optional(),
+        from: z
+          .looseObject({
+            type: z.string(),
+            display_name: z.string().optional(),
+            organization_details: z.looseObject({}).nullish(),
+          })
+          .nullish(),
+        to: z.array(inboxParticipantSchema).optional(),
+      }),
+    )
+    .optional(),
+});
+
 export const inboxThreadListSchema = z.looseObject({
-  data: z.array(
-    z.looseObject({
-      id: z.string(),
-      topic: z.looseObject({ type: z.string(), value: z.string().nullish() }).nullish(),
-      entities: z
-        .array(z.looseObject({ id: z.string(), type: z.string(), label: z.string().optional() }))
-        .optional(),
-      authorized_participants: z.array(inboxParticipantSchema).optional(),
-      current_participants: z.array(inboxParticipantSchema).optional(),
-      date_created: z.string().optional(),
-      date_updated: z.string().optional(),
-      metadata: z
-        .looseObject({
-          last_message_date: z.string().nullish(),
-          shop_reply_needed_since: z.string().nullish(),
-          total_count: z.number().optional(),
-        })
-        .nullish(),
-      messages: z
-        .array(
-          z.looseObject({
-            id: z.string(),
-            body: z.string().nullish(),
-            date_created: z.string().optional(),
-            from: z
-              .looseObject({
-                type: z.string(),
-                display_name: z.string().optional(),
-                organization_details: z.looseObject({}).nullish(),
-              })
-              .nullish(),
-            to: z.array(inboxParticipantSchema).optional(),
-          }),
-        )
-        .optional(),
-    }),
-  ),
+  data: z.array(inboxThreadSchema),
   next_page_token: z.string().nullish(),
   previous_page_token: z.string().nullish(),
+});
+
+// M12 reply receipt: HTTP 201 live (2026-11-18) with a JSON body that carries the message id.
+// Parsed leniently on purpose: the message is already delivered by the time this runs, so a
+// surprising shape must not turn a successful send into a thrown error.
+export const inboxReplyReceiptSchema = z.looseObject({
+  id: z.union([z.string(), z.number()]).nullish(),
+});
+
+// OR28 refund result. ASSUMPTION: every key optional/nullish for the same reason as above.
+const orderRefundSchema = z.looseObject({
+  id: z.union([z.string(), z.number()]).nullish(),
+  amount: z.union([z.number(), z.string()]).nullish(),
+  reason_code: z.string().nullish(),
+  order_line_id: z.string().nullish(),
+  state: z.string().nullish(),
+  quantity: z.number().nullish(),
+});
+
+export const orderRefundResultSchema = z.looseObject({
+  order_tax_mode: z.string().nullish(),
+  refunds: z.array(orderRefundSchema).default([]),
 });
 
 export const platformVersionSchema = z.looseObject({ version: z.string() });

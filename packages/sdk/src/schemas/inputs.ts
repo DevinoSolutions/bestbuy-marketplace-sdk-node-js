@@ -46,3 +46,33 @@ export function toBlob(file: Blob | Uint8Array, path: string, context: string): 
     issues: [{ path, message: "must be a Blob or a Uint8Array/Buffer", code: "invalid_type" }],
   });
 }
+
+/** Throws unless `value` is a positive integer (a quantity, for example). */
+export function requirePositiveInteger(value: unknown, path: string, context: string): number {
+  if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
+    throw new BestBuyValidationError(`Invalid argument for ${context}`, {
+      issues: [{ path, message: "must be an integer greater than 0", code: "too_small" }],
+    });
+  }
+  return value;
+}
+
+/** Throws unless `value` is a finite number that is not negative (a money amount, say). */
+export function requireNonNegativeNumber(value: unknown, path: string, context: string): number {
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+    throw new BestBuyValidationError(`Invalid argument for ${context}`, {
+      issues: [{ path, message: "must be a finite number, 0 or greater", code: "too_small" }],
+    });
+  }
+  return value;
+}
+
+/**
+ * Accepts a money amount as a number or a plain decimal string (`"1.5"`, `"13"`) and returns
+ * it formatted with exactly two decimals, which is how Mirakl wants tax amounts on the wire.
+ */
+export function formatMoneyString(value: unknown, path: string, context: string): string {
+  const numeric =
+    typeof value === "string" && /^\d+(\.\d+)?$/.test(value.trim()) ? Number(value) : value;
+  return requireNonNegativeNumber(numeric, path, context).toFixed(2);
+}

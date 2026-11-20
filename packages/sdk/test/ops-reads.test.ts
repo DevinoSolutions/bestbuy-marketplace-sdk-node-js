@@ -241,9 +241,9 @@ describe("inbox.threads (M11)", () => {
     expect(url.searchParams.get("page_token")).toBe("token-1");
   });
 
-  it("has no reply surface", () => {
+  it("exposes exactly three reads and one write (reply, M12)", () => {
     const { client } = harness([]);
-    expect(Object.keys(client.inbox)).toEqual(["threads"]);
+    expect(Object.keys(client.inbox)).toEqual(["threads", "thread", "reply", "downloadAttachment"]);
   });
 });
 

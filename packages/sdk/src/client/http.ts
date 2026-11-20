@@ -27,10 +27,14 @@ interface RequestSpec {
   query?: Record<string, QueryValue>;
   /** JSON request body. Mutually exclusive with `form`. */
   json?: unknown;
-  /** Multipart body for file imports. Mutually exclusive with `json`. */
+  /** Multipart body (file imports, inbox replies). Mutually exclusive with `json`. */
   form?: FormData;
-  /** `json` (default) parses the response; `text` returns it verbatim, e.g. CSV reports. */
-  accept?: "json" | "text";
+  /**
+   * `json` (default) parses the response; `text` returns it verbatim, e.g. CSV reports;
+   * `binary` returns the raw bytes, e.g. message attachments. Error bodies are always read
+   * (and redacted) as text, whatever this says.
+   */
+  accept?: "json" | "text" | "binary";
 }
 
 function fillPath(template: string, params: Record<string, string> | undefined): string {
@@ -69,6 +73,12 @@ export class BestBuyHttpClient {
     return text;
   }
 
+  /** Performs the request and returns the raw response bytes (attachment downloads). */
+  async requestBytes(spec: RequestSpec, options?: RequestOptions): Promise<Uint8Array> {
+    const { bytes } = await this.send({ ...spec, accept: "binary" }, options);
+    return bytes ?? new Uint8Array();
+  }
+
   private buildUrl(spec: RequestSpec): URL {
     const operation = OPERATIONS[spec.operation];
     const url = new URL(this.config.baseUrl + fillPath(operation.path, spec.pathParams));
@@ -85,14 +95,19 @@ export class BestBuyHttpClient {
   private async send(
     spec: RequestSpec,
     options?: RequestOptions,
-  ): Promise<{ status: number; text: string }> {
+  ): Promise<{ status: number; text: string; bytes?: Uint8Array }> {
     const operation = OPERATIONS[spec.operation];
     const url = this.buildUrl(spec);
 
     const headers = new Headers({
       // Raw API key: Mirakl does NOT use a "Bearer" prefix.
       Authorization: this.config.apiKey,
-      Accept: spec.accept === "text" ? "text/plain, text/csv, */*" : "application/json",
+      Accept:
+        spec.accept === "text"
+          ? "text/plain, text/csv, */*"
+          : spec.accept === "binary"
+            ? "application/octet-stream, */*"
+            : "application/json",
       "User-Agent": this.config.userAgent,
     });
 
@@ -132,6 +147,16 @@ export class BestBuyHttpClient {
         // `cause` is the fetch failure; it never carries request headers.
         { timedOut, cause },
       );
+    }
+
+    if (response.ok && spec.accept === "binary") {
+      // A successful binary body is returned as-is: it is an opaque file, not an API echo, so
+      // there is nothing to redact. Failures fall through to the text path below.
+      return {
+        status: response.status,
+        text: "",
+        bytes: new Uint8Array(await response.arrayBuffer()),
+      };
     }
 
     const raw = await response.text();
